@@ -73,7 +73,6 @@ const CategoryForm: React.FC<CategoryFormProps> = ({ initialData }) => {
             form.setValue("active", initialData?.active);
         }
     }, [initialData]);
-    console.log(form.getValues('active'));
 
     const onSubmit = async (data: z.infer<typeof formSchema>) => {
         try {
@@ -105,7 +104,6 @@ const CategoryForm: React.FC<CategoryFormProps> = ({ initialData }) => {
                 }
             }
         } catch (error) {
-            console.log(error);
             toast.error("Đã xảy ra lỗi");
         } finally {
             setLoading(false);

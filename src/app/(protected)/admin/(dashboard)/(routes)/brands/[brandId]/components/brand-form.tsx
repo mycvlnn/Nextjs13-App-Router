@@ -141,7 +141,6 @@ const BrandForm: React.FC<BrandFormProps> = ({ initialData }) => {
                     router.push('/admin/brands');
                     toast.success(toastMessage);
                 }else if(response.status===422){
-                    // setErrorName(response.error.message)
                 }
             } else {
                 const response = await axios.post(`${URL}/api/brands`, datas, {
@@ -158,7 +157,6 @@ const BrandForm: React.FC<BrandFormProps> = ({ initialData }) => {
                 }
             }
         } catch (error) {
-            console.log(error);
             toast.error("Đã xảy ra lỗi");
         } finally {
             setLoading(false);

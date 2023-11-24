@@ -2,15 +2,18 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
-import { Trash } from "lucide-react";
+import { MinusCircleIcon, Trash } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
-import React, { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+import React, { useEffect } from "react";
+import { Controller, useFieldArray, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import * as z from "zod";
 
+import { OurFileRouter } from "@/app/api/uploadthing/core";
 import { AlertModal } from "@/components/modals/alert-modal";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { FileDialog } from "@/components/ui/file-dialog";
 import {
     Form,
     FormControl,
@@ -23,20 +26,18 @@ import {
 } from "@/components/ui/form";
 import { Heading } from "@/components/ui/heading";
 import { Input } from "@/components/ui/input";
-import { Separator } from "@/components/ui/separator";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Brand, Category, Product } from "@/types";
-import { getSession } from "next-auth/react";
-import { Textarea } from "@/components/ui/textarea";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { generateReactHelpers } from "@uploadthing/react/hooks";
-import { OurFileRouter } from "@/app/api/uploadthing/core";
-import { FileWithPreview } from "@/types/types";
-import { Zoom } from "@/lib/zoom-image";
-import Image from "next/image";
-import { FileDialog } from "@/components/ui/file-dialog";
+import ReactSelect from "react-select"
+import { Separator } from "@/components/ui/separator";
+import { Textarea } from "@/components/ui/textarea";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { isArrayOfFile } from "@/lib/utils";
+import { Zoom } from "@/lib/zoom-image";
+import { Brand, Category, Product } from "@/types";
+import { FileWithPreview } from "@/types/types";
+import { generateReactHelpers } from "@uploadthing/react/hooks";
+import { getSession } from "next-auth/react";
+import Image from "next/image";
 
 const URL = process.env.NEXT_PUBLIC_URL_API;
 
@@ -61,16 +62,8 @@ const formSchema = z.object({
     }).max(191, {
         message: "Tối đa 191 ký tự.",
     }),
-    quantity: z.string().min(1, {
-        message: "Số lượng sản phẩm tối thiểu là 1.",
-    }).max(100000, {
-        message: "Số lượng sản phẩm tối đa là 100.000.",
-    }),
-    price: z.string().min(1, {
-        message: "Đơn giá sản phẩm tối thiểu là 1 đồng.",
-    }).max(100000000, {
-        message: "Đơn giá sản phẩm tối đa là 100.000.000 đồng.",
-    }),
+    quantity: z.any(),
+    price: z.any(),
     images: z
     .unknown()
     .refine((val) => {
@@ -85,21 +78,29 @@ const formSchema = z.object({
     trending:z.boolean().default(false).optional(),
     many_version:z.boolean().default(false).optional(),
     description: z.any(),
+    properties: z.array(
+        z.object({
+            property_options: z.any(),
+            price: z.any(),
+            quantity: z.any()
+        })
+    ),
 });
 
 const { useUploadThing } = generateReactHelpers<OurFileRouter>();
 
 const ProductForm: React.FC<ProductFormProps> = ({ initialData }) => {
-    const params = useParams();
     const router = useRouter();
+    const params = useParams();
 
-    const [open, setOpen] = useState(false);    
-    const [loading, setLoading] = useState(false);
-    const [brands, setBrands] = useState([]);
-    const [categories, setCategories] = useState([]);
-    const [files, setFiles] = React.useState<FileWithPreview[] | null>(null);
-    const [galleries, setGalleries] = React.useState<FileWithPreview[] | null>(null);
-    const { isUploading, startUpload } = useUploadThing("productImage");
+    const [open, setOpen]                       = React.useState(false);    
+    const [loading, setLoading]                 = React.useState(false);
+    const [brands, setBrands]                   = React.useState([]);
+    const [categories, setCategories]           = React.useState([]);
+    const [files, setFiles]                     = React.useState<FileWithPreview[] | null>(null);
+    const [isMany, setIsMany]                   = React.useState(false);
+    const [selects, setSelects]                 = React.useState([]);
+    const { isUploading, startUpload }          = useUploadThing("productImage");
     
     const title        = "Quản lý sản phẩm";
     const description  = initialData ? "Cập nhật sản phẩm" : "Thêm mới sản phẩm";
@@ -117,13 +118,25 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData }) => {
         description: '',
         active: false, 
         many_version: false, 
-        trending: false, 
+        trending: false,
+        properties: [
+            {
+                property_options: [],
+                quantity: '',
+                price: ''
+            }
+        ]
     }
     
     const form = useForm({
         resolver: zodResolver(formSchema),
         defaultValues
     });
+
+    const { fields, append, remove } = useFieldArray({
+        control: form.control,
+        name: "properties"
+      });
 
     useEffect(() => {
         if (initialData?.image) {
@@ -144,6 +157,25 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData }) => {
       }, [initialData?.image]);
 
     useEffect(() => {
+        const fetchSelect = async () => {
+            const session = await getSession();
+      
+            try {
+              const response = await axios.get(`${URL}/api/products/new-product/get-option`, {
+                headers: {
+                  Authorization: `Bearer ${session?.accessToken}`
+                }
+              });
+      
+              if (response.status === 200) {
+                const data = response.data.data;
+                  setSelects(data);
+              } else {
+                setSelects([]);
+              }
+            } catch (error) {
+            }
+        };
         const fetchBrand = async () => {
             const session = await getSession();
       
@@ -157,7 +189,6 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData }) => {
               if (response.status === 200) {
                 const data = response.data.data;
                   setBrands(data);
-                  console.log(data);
               } else {
                 setBrands([]);
               }
@@ -177,7 +208,6 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData }) => {
               if (response.status === 200) {
                 const data = response.data.data;
                 setCategories(data);
-                console.log(data);
               } else {
                 setCategories([]);
               }
@@ -187,17 +217,31 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData }) => {
       
           fetchBrand();
           fetchCategory();
+          fetchSelect();
         if (initialData) {
             form.setValue("name", initialData?.name);
             form.setValue("sku", initialData?.sku);
             form.setValue("brand_id", initialData?.brand_id.toString());
             form.setValue("category_id", initialData?.category_id.toString());
-            form.setValue("quantity", (initialData?.quantity - initialData?.sold_quantity).toString());
-            form.setValue("price", (initialData?.price).toString());
+            if (initialData?.many_version) {
+            } else {
+                form.setValue("quantity", (initialData?.quantity - initialData?.sold_quantity).toString());
+            }
+            form.setValue("price", (initialData?.price ? initialData?.price : 0).toString());
             form.setValue("description", initialData?.description);
             form.setValue("active", initialData?.active);
             form.setValue("many_version", initialData?.many_version);
             form.setValue("trending", initialData?.trending);
+            setIsMany(initialData?.many_version);
+            const newProperties = initialData?.skus.map((i: any) => {
+                i.property_options = i.property_options.map((a:any) => ({
+                  ...a,
+                  label: a.name,
+                  value: a.id,
+                }));
+                return i;
+            });
+            form.setValue("properties", newProperties);
         }
     }, [initialData]);
 
@@ -246,7 +290,6 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData }) => {
                 }
             }
         } catch (error) {
-            console.log(error);
             toast.error("Đã xảy ra lỗi");
         } finally {
             setLoading(false);
@@ -422,7 +465,10 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData }) => {
                                     <Checkbox
                                         disabled={loading}
                                         checked={field.value}
-                                        onCheckedChange={field.onChange}
+                                        onCheckedChange={(isChecked: boolean) => {
+                                            field.onChange(isChecked);
+                                            setIsMany(isChecked);
+                                        }}
                                     />
                                     </FormControl>
                                     <div className="space-y-1 leading-none">
@@ -430,54 +476,143 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData }) => {
                                         Có nhiều phiên bản
                                         </FormLabel>
                                         <FormDescription>
-                                        Khi chọn điều này, sản phẩm sẽ có thể tạo được nhiều thuộc tính (đang bảo trì).
+                                        Khi chọn điều này, sản phẩm sẽ có thể tạo được nhiều thuộc tính.
                                         </FormDescription>
                                     </div>
-                                    <FormMessage/>
+                                    <FormMessage />
                                 </FormItem>
                             )}
                         />
                     </div>
-                    <div className="grid grid-cols-2 gap-8">
-                        <FormField
-                            control={form.control}
-                            name="quantity"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Số lượng</FormLabel>
-                                    <FormControl>
-                                        <Input
-                                            type="number"
-                                            min={0}
-                                            disabled={loading}
-                                            placeholder="Số lượng"
-                                            {...field}
-                                        />
-                                    </FormControl>
-                                    <FormMessage/>
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="price"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Đơn giá</FormLabel>
-                                    <FormControl>
-                                        <Input
-                                            type="number"
-                                            min={0}
-                                            disabled={loading}
-                                            placeholder="Đơn giá"
-                                            {...field}
-                                        />
-                                    </FormControl>
-                                    <FormMessage/>
-                                </FormItem>
-                            )}
-                        />
-                    </div>
+                    {
+                        isMany ? (
+                            fields.map((item, i) => {
+                                return (
+                                    <div key={i} className="grid grid-cols-1 gap-3">
+                                        <div className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                                        <Controller
+                                            name={`properties.${i}.property_options`}
+                                            control={form.control}
+                                            render={({ field }) => (
+                                                <AttributeSelect
+                                                    label='Thuộc tính'
+                                                    placeholder='Chọn thuộc tính'
+                                                    value={field.value}
+                                                    onChange={field.onChange}
+                                                    innerRef={field.ref}
+                                                />
+                                            )}
+                                            />
+                                            <div className="grid grid-cols-2 gap-3">
+                                                <FormField
+                                                    control={form.control}
+                                                    name={`properties.${i}.quantity`}
+                                                    render={({ field }) => (
+                                                        <FormItem>
+                                                            <FormLabel>Số lượng</FormLabel>
+                                                            <FormControl>
+                                                                <Input
+                                                                    type="number"
+                                                                    min={0}
+                                                                    disabled={loading}
+                                                                    placeholder="Số lượng"
+                                                                    {...field}
+                                                                />
+                                                            </FormControl>
+                                                            <FormMessage/>
+                                                        </FormItem>
+                                                    )}
+                                                />
+                                                <FormField
+                                                    control={form.control}
+                                                    name={`properties.${i}.price`}
+                                                    render={({ field }) => (
+                                                        <FormItem>
+                                                            <FormLabel>Đơn giá</FormLabel>
+                                                            <FormControl>
+                                                                <Input
+                                                                    type="number"
+                                                                    min={0}
+                                                                    disabled={loading}
+                                                                    placeholder="Đơn giá"
+                                                                    {...field}
+                                                                />
+                                                            </FormControl>
+                                                            <FormMessage/>
+                                                        </FormItem>
+                                                    )}
+                                                />
+                                            </div>
+                                            <div className="pt-8">
+                                                <Button variant="destructive" size="icon" type="button" onClick={() => remove(i)}>
+                                                    <MinusCircleIcon className="w-4 h-4"/>
+                                                </Button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )
+                            })
+                        ) : (
+                            <div className="grid grid-cols-2 gap-8">
+                            <FormField
+                                control={form.control}
+                                name="quantity"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Số lượng</FormLabel>
+                                        <FormControl>
+                                            <Input
+                                                type="number"
+                                                min={0}
+                                                disabled={loading}
+                                                placeholder="Số lượng"
+                                                {...field}
+                                            />
+                                        </FormControl>
+                                        <FormMessage/>
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name="price"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Đơn giá</FormLabel>
+                                        <FormControl>
+                                            <Input
+                                                type="number"
+                                                min={0}
+                                                disabled={loading}
+                                                placeholder="Đơn giá"
+                                                {...field}
+                                            />
+                                        </FormControl>
+                                        <FormMessage/>
+                                    </FormItem>
+                                )}
+                            />
+                        </div>
+                        )
+                    }
+                    {
+                        isMany && (
+                            <Button
+                                className="w-full"
+                                variant="outline"
+                                type="button"
+                                onClick={() =>
+                                    append({
+                                        property_options: [],
+                                        price: "",
+                                        quantity: "",
+                                    })
+                                  }
+                            >
+                                Thêm thuộc tính
+                            </Button>
+                        )
+                    }
                     <div className="grid grid-cols-1 gap-8">
                         <FormField
                             control={form.control}
@@ -592,3 +727,142 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData }) => {
 }
 
 export default ProductForm;
+
+type PropertyOption = {
+    label: string;
+    options: {
+     label: string;
+        id: number;
+     value: string;
+      properties: {
+        id: number;
+        label: string;
+      };
+    }[];
+  }[];
+const AttributeSelect = (props: any) => {
+    const [properties, setProperties] = React.useState([]);
+    useEffect(() => {
+        const fetchSelect = async () => {
+            const session = await getSession();
+      
+            try {
+              const response = await axios.get(`${URL}/api/products/new-product/get-option`, {
+                headers: {
+                  Authorization: `Bearer ${session?.accessToken}`
+                }
+              });
+      
+              if (response.status === 200) {
+                const data = response.data.data;
+                setProperties(data);
+            } else {
+                setProperties([]);
+            }
+        } catch (error) {
+        }
+    };
+    fetchSelect();
+    }, []);
+    const [originalOptions, setOriginalOptions] = React.useState<PropertyOption>([]);
+    const [options, setOptions] = React.useState<PropertyOption>([]);
+    
+    useEffect(() => {
+        if (properties) {
+        const newAttributes = properties.map((i:any) => {
+          const attributeValues = i.property_options.map((a:any) => ({
+            ...a,
+              label: a.name,
+              value: a.id,
+          }));
+  
+          return {
+            label: i.name,
+            value: i.id,
+            options: attributeValues,
+          };
+        });
+        setOriginalOptions(newAttributes);
+        setOptions(newAttributes);
+      }
+    }, [properties]);
+  
+    const handleChange = (selectedOption: any) => {
+      props.onChange(selectedOption);
+  
+      let newGroupedOptions = [];
+      newGroupedOptions = originalOptions?.filter((e: any) => {
+        const found = e.options.find((k: any) => {
+          const res = selectedOption.find((i: any) => i.name === k.name);
+          return res ? true : false;
+        });
+  
+        return found ? false : true;
+      });
+  
+      setOptions(newGroupedOptions);
+    };
+  
+    return (
+      <div className="w-full">
+        <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+          Chọn thuộc tính
+        </label>
+  
+        <ReactSelect
+          {...props}
+          menuPortalTarget={document.body}
+          menuPosition={'fixed'}
+          options={options}
+          onChange={handleChange}
+          isMulti
+          noOptionsMessage={() => 'Không tìm thấy lựa chọn phù hợp nào.'}
+          className="py-2"
+          closeMenuOnSelect={false}
+          styles={{
+            container: (base:any) => ({
+              ...base,
+              width: '100%',
+            }),
+            control: (base:any) => ({
+              ...base,
+              background: '#FFFFFF',
+              border: '1px solid #e2e8f0',
+              borderColor: 'none',
+              borderRadius: 6,
+              minHeight: 40,
+              boxShadow: 'none',
+            }),
+            menu: (base:any) => ({
+              ...base,
+              background: '#fff',
+              fontSize: 14,
+              borderRadius: 6,
+              overflow: 'hidden',
+              minWidth: 360,
+            }),
+            menuList: (base:any) => ({
+              ...base,
+            }),
+            valueContainer: (base:any) => ({
+              ...base,
+              fontSize: 14,
+            }),
+            option: (styles: any, { isSelected }: any) => ({
+              ...styles,
+              backgroundColor: isSelected ? '#848a95' : null,
+              color: isSelected ? 'white' : null,
+              ':hover': {
+                backgroundColor: isSelected ? null : '#f1f5f9',
+                color: isSelected ? null : '#000000',
+              },
+              ':active': {
+                backgroundColor: null,
+                color: null,
+              },
+            }),
+          }}
+        />
+      </div>
+    );
+  };

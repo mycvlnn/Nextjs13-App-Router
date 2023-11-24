@@ -143,12 +143,12 @@ function Socials() {
             <span className="sr-only">Facebook</span>
          </a>
          <a
-            href="https://github.com/accretence"
+            href="#"
             target="_blank"
             rel="noreferrer"
          >
             <GithubIcon className="h-4" />
-            <span className="sr-only">GitHub account</span>
+            <span className="sr-only">GitHub</span>
          </a>
       </div>
    )

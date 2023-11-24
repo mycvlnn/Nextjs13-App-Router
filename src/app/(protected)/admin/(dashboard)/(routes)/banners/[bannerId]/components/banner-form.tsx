@@ -167,7 +167,6 @@ const BannerForm: React.FC<BannerFormProps> = ({ initialData }) => {
                 }
             }
         } catch (error) {
-            console.log(error);
             toast.error("Đã xảy ra lỗi");
         } finally {
             setLoading(false);

@@ -11,6 +11,7 @@ import * as z from "zod";
 
 import { AlertModal } from "@/components/modals/alert-modal";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
     Form,
     FormControl,
@@ -24,15 +25,13 @@ import { Heading } from "@/components/ui/heading";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Category } from "@/types";
+import { PropertyOption } from "@/types";
 import { getSession } from "next-auth/react";
-import { Textarea } from "@/components/ui/textarea";
-import { Checkbox } from "@/components/ui/checkbox";
 
 const URL = process.env.NEXT_PUBLIC_URL_API;
 
-interface CategoryFormProps {
-    initialData: Category | null;
+interface PropertyFormProps {
+    initialData: PropertyOption | null;
 }
 
 const formSchema = z.object({
@@ -40,24 +39,22 @@ const formSchema = z.object({
         message: "Tên là bắt buộc.",
     }),
     active:z.boolean().default(false).optional(),
-    description: z.any(),
 });
 
-const CategoryForm: React.FC<CategoryFormProps> = ({ initialData }) => {
+const PropertyForm: React.FC<PropertyFormProps> = ({ initialData }) => {
     const params = useParams();
     const router = useRouter();
 
     const [open, setOpen] = useState(false);    
     const [loading, setLoading] = useState(false);
     
-    const title        = "Quản lý danh mục";
-    const description  = initialData ? "Cập nhật danh mục" : "Thêm mới danh mục";
+    const title        = "Quản lý thuộc tính";
+    const description  = initialData ? "Cập nhật thuộc tính" : "Thêm mới thuộc tính";
     const toastMessage = initialData ? "Cập nhật thành công" : "Thêm mới thành công";
     const action = initialData ? "Cập nhật" : "Thêm mới";
 
     const defaultValues = {
         name: '',
-        description: '',
         active: false, 
     }
     
@@ -69,43 +66,45 @@ const CategoryForm: React.FC<CategoryFormProps> = ({ initialData }) => {
     useEffect(() => {
         if (initialData) {
             form.setValue("name", initialData?.name);
-            form.setValue("description", initialData?.description);
             form.setValue("active", initialData?.active);
         }
     }, [initialData]);
-    console.log(form.getValues('active'));
 
     const onSubmit = async (data: z.infer<typeof formSchema>) => {
         try {
             setLoading(true);
-            const session = await getSession();
+            const session     = await getSession();
+            const property_id = params.propertyId;
+            const datas = {
+                ...data,
+                property_id
+            };
 
             if (initialData) {
-                const response = await axios.put(`${URL}/api/categories/${params.categoryId}`, data, {
+                const response = await axios.put(`${URL}/api/properties/${property_id}/options/${params.optionId}`, datas, {
                     headers: {
                         Authorization: `Bearer ${session?.accessToken}`,
                     },
                   }); 
                 if (response.status === 200) {
-                    router.push('/admin/categories');
+                    router.push(`/admin/properties/${property_id}/options`);
                     toast.success(toastMessage);
                 }
             } else {
-                const response = await axios.post(`${URL}/api/categories`, data, {
+                const response = await axios.post(`${URL}/api/properties/${property_id}/options`, datas, {
                     headers: {
                         Authorization: `Bearer ${session?.accessToken}`,
                         'Content-Type': 'application/json',
                     },
                   }); 
                 if (response.status === 200) {
-                    router.push('/admin/categories');
+                    router.push(`/admin/properties/${property_id}/options`);
                     toast.success(toastMessage);
                 } else if (response.status = 422) {
                     
                 }
             }
         } catch (error) {
-            console.log(error);
             toast.error("Đã xảy ra lỗi");
         } finally {
             setLoading(false);
@@ -116,13 +115,13 @@ const CategoryForm: React.FC<CategoryFormProps> = ({ initialData }) => {
         try {
             setLoading(true);
             const session = await getSession();
-            const response = await axios.delete(`${URL}/api/categories/${initialData?.id}`,{
+            const response = await axios.delete(`${URL}/api/properties/${params.propertyId}/options/${initialData?.id}`,{
                 headers: {
                     Authorization: `Bearer ${session?.accessToken}`
                 },
               })
             if (response.status === 200) {
-                router.push('/admin/categories');
+                router.push(`/admin/properties/${params.propertyId}/options`);
                 toast.success("Xóa thành công");
             }
         } catch (error) {
@@ -156,7 +155,7 @@ const CategoryForm: React.FC<CategoryFormProps> = ({ initialData }) => {
                         </Button> 
                         </TooltipTrigger>
                         <TooltipContent>
-                        <p>Xóa danh mục</p>
+                        <p>Xóa thuộc tính</p>
                         </TooltipContent>
                     </Tooltip>
                 </TooltipProvider>
@@ -173,30 +172,12 @@ const CategoryForm: React.FC<CategoryFormProps> = ({ initialData }) => {
                             name="name"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Tên danh mục</FormLabel>
+                                    <FormLabel>Tên thuộc tính</FormLabel>
                                     <FormControl>
                                         <Input
                                             type="text"
                                             disabled={loading}
-                                            placeholder="Tên danh mục"
-                                            {...field}
-                                        />
-                                    </FormControl>
-                                    <FormMessage/>
-                                </FormItem>
-                            )}
-                        />
-                    </div>
-                    <div className="grid grid-cols-1 gap-8">
-                        <FormField
-                            control={form.control}
-                            name="description"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Mô tả</FormLabel>
-                                    <FormControl>
-                                        <Textarea
-                                            disabled={loading}
+                                            placeholder="Tên thuộc tính"
                                             {...field}
                                         />
                                     </FormControl>
@@ -223,7 +204,7 @@ const CategoryForm: React.FC<CategoryFormProps> = ({ initialData }) => {
                                 Hiển thị
                                 </FormLabel>
                                 <FormDescription>
-                                Danh mục sẽ hiển thị ở trang chủ.
+                                Thuộc tính sẽ được hiển thị.
                                 </FormDescription>
                             </div>
                             </FormItem>
@@ -231,7 +212,7 @@ const CategoryForm: React.FC<CategoryFormProps> = ({ initialData }) => {
                         />
                     </div>
                     <div className="flex items-center justify-end">
-                        <Button variant="outline" onClick={()=>router.push('/admin/categories')} className="ml-auto mr-2" type="button">
+                        <Button variant="outline" onClick={()=>router.push(`/admin/properties/${params.propertyId}/options`)} className="ml-auto mr-2" type="button">
                             Hủy
                         </Button>
                         <Button type="submit">
@@ -244,4 +225,4 @@ const CategoryForm: React.FC<CategoryFormProps> = ({ initialData }) => {
     );
 }
 
-export default CategoryForm;
+export default PropertyForm;

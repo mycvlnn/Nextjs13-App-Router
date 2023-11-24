@@ -1,6 +1,6 @@
 "use client";
 
-import { Brand, Category, Product } from "@/types";
+import { Property } from "@/types";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import { type ColumnDef } from "@tanstack/react-table";
 import Link from "next/link";
@@ -13,31 +13,26 @@ import { Switch } from "../ui/switch";
 import { getSession } from "next-auth/react";
 import axios from "axios";
 import toast from "react-hot-toast";
-import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
 
 const URL = process.env.NEXT_PUBLIC_URL_API;
 
-interface ProductsTableShellProps {
-  categories: Category[];
-  brands: Brand[];
-  data: Product[];
+interface PropertiesTableShellProps {
+  data: Property[];
   pageCount: number;
 }
 
-export function ProductsTableShell({
-  categories,
-  brands,
+export function PropertiesTableShell({
   data,
   pageCount,
-}: ProductsTableShellProps) {
+}: PropertiesTableShellProps) {
   const [isPending, startTransition] = React.useTransition();
   const [isLoading, setIsLoading] = React.useState(false);
 
-  const handleSwitchChange = async(isChecked: boolean, productId: string) => {
+  const handleSwitchChange = async(isChecked: boolean, categoryId: string) => {
       setIsLoading(true);
       const session = await getSession();
       try {
-        const response = await axios.post(`${URL}/api/products/active/${productId}`, { "active": isChecked }, {
+        const response = await axios.post(`${URL}/api/properties/active/${categoryId}`, { "active": isChecked }, {
               headers: {
                   'Content-Type': 'application/json',
                   Authorization: `Bearer ${session?.accessToken}`,
@@ -58,17 +53,8 @@ export function ProductsTableShell({
     0: "Ẩn",
     1: "Hiển thị"
   }
-  const brandValue: { [key: string]: string } = {};
-  const categoryValue: { [key: string]: string } = {};
 
-  brands.forEach((brand) => {
-      brandValue[brand.id] = brand.name;
-  });
-  categories.forEach((category) => {
-    categoryValue[category.id] = category.name;
-  });
-
-  const columns = React.useMemo<ColumnDef<Product, unknown>[]>(
+  const columns = React.useMemo<ColumnDef<Property, unknown>[]>(
     () => [
       {
         accessorKey: "id",
@@ -77,63 +63,15 @@ export function ProductsTableShell({
         ),
       },
       {
-        accessorKey: "image",
-        header: ({ column }) => (
-            <DataTableColumnHeader column={column} title="Hình ảnh" className="w-[50px]"/>
-          ),
-        cell: ({ row }) => (
-          <Avatar>
-            <AvatarImage src={row.original.image} className="max-w-full w-12 h-12 object-cover rounded-full"/>
-            <AvatarFallback>CN</AvatarFallback>
-          </Avatar>
-        ),
-        enableSorting: false,
-      },
-      {
         accessorKey: "name",
         header: ({ column }) => (
-          <DataTableColumnHeader column={column} title="Tên sản phẩm" />
+          <DataTableColumnHeader column={column} title="Tên thuộc tính"  className="w-[650px]"/>
         ),
-          cell: ({ row }) => (
-            <>
-              <div>
-                <span className="">{ row.original.name }</span>
-              </div>
-              SKU: <span className="text-gray-900 font-semibold">{ row.original.sku }</span>
-              </>
-          )
-          },
-          {
-            accessorKey: "category_id",
-            header: ({ column }) => (
-              <DataTableColumnHeader column={column} title="Danh mục" />
-            ),
-          },
-          {
-            accessorKey: "brand_id",
-            header: ({ column }) => (
-              <DataTableColumnHeader column={column} title="Thương hiệu" />
-            ),
-          },
-          {
-            accessorKey: "quantity",
-            header: ({ column }) => (
-              <DataTableColumnHeader column={column} title="Số lượng" />
-            ),
-      },
-      {
-        accessorKey: "price",
-        header: ({ column }) => (
-          <DataTableColumnHeader column={column} title="Đơn giá" />
-        ),
-        cell: ({ row }) => (
-          new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(row.original.price)
-        )
       },
       {
         accessorKey: "active",
         header: ({ column }) => (
-          <DataTableColumnHeader column={column} title="Trạng thái"/>
+          <DataTableColumnHeader column={column} title="Trạng thái" />
         ),
         cell: ({ row }) => (
           <Switch
@@ -160,16 +98,16 @@ export function ProductsTableShell({
             <DropdownMenuContent align="end" className="w-[160px]">
               <DropdownMenuItem asChild>
                 <Link
-                  href={`/admin/products/${row.original.id}`}
+                  href={`/admin/properties/${row.original.id}`}
                 >
                   Chỉnh sửa
                 </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
                 <Link
-                  href={`/admin/products/${row.original.id}/gallery`}
+                  href={`/admin/properties/${row.original.id}/options`}
                 >
-                  Thư viện ảnh
+                  Quản lý thuộc tính
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
@@ -199,31 +137,15 @@ export function ProductsTableShell({
             label: `${label.charAt(0).toUpperCase()}${label.slice(1)}`,
             value: value,
           })),
-       },
-        {
-        id: "brand_id",
-        title: "Thương hiệu",
-        options: Object.entries(brandValue).map(([value, label]) => ({
-            label: `${label.charAt(0).toUpperCase()}${label.slice(1)}`,
-            value: value,
-        })),
-        },
-        {
-        id: "category_id",
-        title: "Danh mục",
-        options: Object.entries(categoryValue).map(([value, label]) => ({
-            label: `${label.charAt(0).toUpperCase()}${label.slice(1)}`,
-            value: value,
-        })),
         },
       ]}
       searchableColumns={[
         {
           id: "name",
-          title: "sản phẩm",
+          title: "thuộc tính",
         },
       ]}
-      newRowLink={`/admin/products/new`}
+      newRowLink={`/admin/properties/new`}
     />
   );
 }

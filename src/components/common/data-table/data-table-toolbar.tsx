@@ -33,7 +33,7 @@ export function DataTableToolbar<TData>({
   const router = useRouter();
 
   return (
-    <div className="flex w-full items-center justify-between space-x-2 overflow-auto py-1">
+    <div className="flex w-full items-center justify-between space-x-2 overflow-auto py-1 pl-1">
       <div className="flex flex-1 items-center space-x-2">
         {searchableColumns.length > 0 &&
           searchableColumns.map(

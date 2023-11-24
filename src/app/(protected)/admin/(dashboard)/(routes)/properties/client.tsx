@@ -1,25 +1,26 @@
 "use client"
 
-import { CategoriesTableShell } from "@/components/common/categories-table-shell";
+import { PropertiesTableShell } from "@/components/common/properties-table-shell";
 import { Heading } from "@/components/ui/heading";
 import { Separator } from "@/components/ui/separator";
 import axios from "axios";
 import { getSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 
-interface CategoryClientProps {
+interface PropertyClientProps {
     params: {
         sort_key: any,
         order_by: any,
         per_page: number,
         page: any,
-        keywords: any
+        keywords: any,
+        active: any
     }
 }
 
 const URL = process.env.NEXT_PUBLIC_URL_API;
 
-export const CategoryClient: React.FC<CategoryClientProps> = ({ params }) => {
+export const PropertyClient: React.FC<PropertyClientProps> = ({ params }) => {
     const [categories, setCategories] = useState([]);
     const [total, setTotal] = useState(0);
 
@@ -27,7 +28,7 @@ export const CategoryClient: React.FC<CategoryClientProps> = ({ params }) => {
         const fetchCategories = async () => {
             const session = await getSession();
             try {
-                const response = await axios.get(`${URL}/api/categories`, {
+                const response = await axios.get(`${URL}/api/properties`, {
                     params,
                     headers: {
                         Authorization: `Bearer ${session?.accessToken}`,
@@ -55,12 +56,12 @@ export const CategoryClient: React.FC<CategoryClientProps> = ({ params }) => {
         <>
             <div className="flex items-center justify-between">
                 <Heading
-                    title="Danh sách danh mục"
-                    description="Quản lý danh mục"
+                    title="Danh sách thuộc tính"
+                    description="Quản lý thuộc tính"
                 />
             </div>
             <Separator />
-            <CategoriesTableShell
+            <PropertiesTableShell
                 data={categories}
                 pageCount={pageCount}
             />

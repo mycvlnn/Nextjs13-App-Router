@@ -65,10 +65,10 @@ export function MainNav({
             active: pathname.startsWith(`/admin/products`),
         },
         {
-            href: `/admin/variants`,
+            href: `/admin/properties`,
             label: 'Thuộc tính',
             description: 'Quản lý thuộc tính',
-            active: pathname.startsWith(`/admin/variants`),
+            active: pathname.startsWith(`/admin/properties`),
         },
         {
             href: `/admin/categories`,

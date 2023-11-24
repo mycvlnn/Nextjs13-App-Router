@@ -1,8 +1,9 @@
 import fetchClient from "@/lib/fetch-client";
 import { jwt } from "@/lib/utils";
-import { getServerSession, type NextAuthOptions, type User } from "next-auth";
+import { type NextAuthOptions, type User } from "next-auth";
 import type { JWT } from "next-auth/jwt";
 import CredentialsProvider from "next-auth/providers/credentials";
+import Swal from 'sweetalert2'
 
 export const authOptions: NextAuthOptions = {
   pages: {
@@ -91,6 +92,12 @@ export const authOptions: NextAuthOptions = {
     },
     async session({ session, token }) {
       if (token.error) {
+        Swal.fire({
+          title: 'Thông báo!',
+          text: 'Phiên đăng nhập đã hết hạn',
+          icon: 'error',
+          confirmButtonText: 'Đã hiểu'
+        })
         throw new Error("Refresh token has expired");
       }
 

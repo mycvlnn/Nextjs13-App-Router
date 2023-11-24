@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import {
     Form,
     FormControl,
+    FormDescription,
     FormField,
     FormItem,
     FormLabel,
@@ -23,83 +24,80 @@ import { Heading } from "@/components/ui/heading";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Role } from "@/types";
+import { Property } from "@/types";
 import { getSession } from "next-auth/react";
-import { TableRole } from "./table-role";
+import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
 
 const URL = process.env.NEXT_PUBLIC_URL_API;
 
-interface RoleFormProps {
-    initialData: Role | null
+interface PropertyFormProps {
+    initialData: Property | null;
 }
 
 const formSchema = z.object({
     name: z.string().min(1, {
         message: "Tên là bắt buộc.",
     }),
-    permissions: z.any()
+    active:z.boolean().default(false).optional(),
 });
 
-export const RoleForm: React.FC<RoleFormProps> = ({
-    initialData
-}) => {
+const PropertyForm: React.FC<PropertyFormProps> = ({ initialData }) => {
     const params = useParams();
     const router = useRouter();
 
     const [open, setOpen] = useState(false);    
     const [loading, setLoading] = useState(false);
     
-    const title        = initialData ? "Quản lý vai trò" : "Quản lý vai trò";
-    const description  = initialData ? "Chỉnh sửa vai trò" : "Thêm mới vai trò";
+    const title        = "Quản lý thuộc tính";
+    const description  = initialData ? "Cập nhật thuộc tính" : "Thêm mới thuộc tính";
     const toastMessage = initialData ? "Cập nhật thành công" : "Thêm mới thành công";
     const action = initialData ? "Cập nhật" : "Thêm mới";
+
+    const defaultValues = {
+        name: '',
+        active: false, 
+    }
     
     const form = useForm({
         resolver: zodResolver(formSchema),
-        defaultValues: initialData || {
-            name: ""
-        }
+        defaultValues
     });
 
     useEffect(() => {
         if (initialData) {
-            form.setValue("name", initialData.name);
+            form.setValue("name", initialData?.name);
+            form.setValue("active", initialData?.active);
         }
-    }, [initialData, form]);
+    }, [initialData]);
 
     const onSubmit = async (data: z.infer<typeof formSchema>) => {
         try {
             setLoading(true);
-            const permissionsString = localStorage.getItem("permissions");
-
-            let permissions:Array<Number> = [];
-            if (permissionsString) {
-                permissions = permissionsString.split(',').map(Number);
-            }
-
-            data = { ...data, permissions };
             const session = await getSession();
 
             if (initialData) {
-                const response = await axios.put(`${URL}/api/roles/${params.roleId}`, data, {
+                const response = await axios.put(`${URL}/api/properties/${params.categoryId}`, data, {
                     headers: {
                         Authorization: `Bearer ${session?.accessToken}`,
                     },
                   }); 
                 if (response.status === 200) {
-                    router.push('/admin/roles');
+                    router.push('/admin/properties');
                     toast.success(toastMessage);
                 }
             } else {
-                const response = await axios.post(`${URL}/api/roles`, data, {
+                const response = await axios.post(`${URL}/api/properties`, data, {
                     headers: {
                         Authorization: `Bearer ${session?.accessToken}`,
                         'Content-Type': 'application/json',
                     },
                   }); 
                 if (response.status === 200) {
-                    router.push('/admin/roles');
+                    router.push('/admin/properties');
                     toast.success(toastMessage);
+                } else if (response.status = 422) {
+                    
                 }
             }
         } catch (error) {
@@ -113,13 +111,13 @@ export const RoleForm: React.FC<RoleFormProps> = ({
         try {
             setLoading(true);
             const session = await getSession();
-            const response = await axios.delete(`${URL}/api/roles/${params.roleId}`,{
+            const response = await axios.delete(`${URL}/api/properties/${initialData?.id}`,{
                 headers: {
                     Authorization: `Bearer ${session?.accessToken}`
                 },
               })
             if (response.status === 200) {
-                router.push('/admin/roles');
+                router.push('/admin/properties');
                 toast.success("Xóa thành công");
             }
         } catch (error) {
@@ -153,7 +151,7 @@ export const RoleForm: React.FC<RoleFormProps> = ({
                         </Button> 
                         </TooltipTrigger>
                         <TooltipContent>
-                        <p>Xóa vai trò</p>
+                        <p>Xóa thuộc tính</p>
                         </TooltipContent>
                     </Tooltip>
                 </TooltipProvider>
@@ -164,18 +162,18 @@ export const RoleForm: React.FC<RoleFormProps> = ({
                 <form 
                     onSubmit={form.handleSubmit(onSubmit)}
                     className="space-y-8 w-full">
-                    <div className="grid grid-cols-3 gap-8">
+                    <div className="grid grid-cols-1 gap-8">
                         <FormField
                             control={form.control}
                             name="name"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Tên vai trò</FormLabel>
+                                    <FormLabel>Tên thuộc tính</FormLabel>
                                     <FormControl>
                                         <Input
                                             type="text"
                                             disabled={loading}
-                                            placeholder="Tên vai trò"
+                                            placeholder="Tên thuộc tính"
                                             {...field}
                                         />
                                     </FormControl>
@@ -184,9 +182,33 @@ export const RoleForm: React.FC<RoleFormProps> = ({
                             )}
                         />
                     </div>
-                    <TableRole params={{ roleId: 1 }} form={ form } /> 
+                    <div className="grid grid-cols-1 gap-8">
+                    <FormField
+                        control={form.control}
+                        name="active"
+                        render={({ field }) => (
+                            <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                            <FormControl>
+                                <Checkbox
+                                    disabled={loading}
+                                    checked={field.value}
+                                    onCheckedChange={field.onChange}
+                                />
+                            </FormControl>
+                            <div className="space-y-1 leading-none">
+                                <FormLabel>
+                                Hiển thị
+                                </FormLabel>
+                                <FormDescription>
+                                Thuộc tính sẽ được hiển thị.
+                                </FormDescription>
+                            </div>
+                            </FormItem>
+                        )}
+                        />
+                    </div>
                     <div className="flex items-center justify-end">
-                        <Button variant="outline" onClick={()=>router.push('/admin/roles')} className="ml-auto mr-2" type="button">
+                        <Button variant="outline" onClick={()=>router.push('/admin/properties')} className="ml-auto mr-2" type="button">
                             Hủy
                         </Button>
                         <Button type="submit">
@@ -198,3 +220,5 @@ export const RoleForm: React.FC<RoleFormProps> = ({
         </>
     );
 }
+
+export default PropertyForm;

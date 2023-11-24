@@ -23,97 +23,95 @@ interface ProductClientProps {
 const URL = process.env.NEXT_PUBLIC_URL_API;
 
 export const ProductClient: React.FC<ProductClientProps> = ({ params }) => {
-    const [products, setProducts] = useState([]);
-    const [brands, setBrands] = useState([]);
-    const [categories, setCategories] = useState([]);
-    const [total, setTotal] = useState(0);
+  const [products, setProducts] = useState([]);
+  const [brands, setBrands] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [total, setTotal] = useState(0);
 
-    useEffect(() => {
-        const fetchProducts = async () => {
-            const session = await getSession();
-            try {
-                const response = await axios.get(`${URL}/api/products`, {
-                    params,
-                    headers: {
-                        Authorization: `Bearer ${session?.accessToken}`,
-                    }
-                });
-
-                if (response.status === 200) {
-                    const data = response.data;
-                    setProducts(data.data);
-                    setTotal(data.meta.total);
-                } else {
-                    setProducts([]);
-                    setTotal(0);
-                }
-            } catch (error) {
-            }
-        };
-        const fetchBrand = async () => {
-            const session = await getSession();
-      
-            try {
-              const response = await axios.get(`${URL}/api/products/new-product/get-brand`, {
+  useEffect(() => {
+      const fetchProducts = async () => {
+        const session = await getSession();
+        try {
+            const response = await axios.get(`${URL}/api/products`, {
+                params,
                 headers: {
-                  Authorization: `Bearer ${session?.accessToken}`
+                    Authorization: `Bearer ${session?.accessToken}`,
                 }
-              });
-      
-              if (response.status === 200) {
-                const data = response.data.data;
-                  setBrands(data);
-                  console.log(data);
-              } else {
-                setBrands([]);
-              }
-            } catch (error) {
+            });
+
+            if (response.status === 200) {
+                const data = response.data;
+                setProducts(data.data);
+                setTotal(data.meta.total);
+            } else {
+                setProducts([]);
+                setTotal(0);
             }
-            };
-        const fetchCategory = async () => {
-            const session = await getSession();
-      
-            try {
-              const response = await axios.get(`${URL}/api/products/new-product/get-category`, {
-                headers: {
-                  Authorization: `Bearer ${session?.accessToken}`
-                }
-              });
-      
-              if (response.status === 200) {
-                const data = response.data.data;
-                setCategories(data);
-                console.log(data);
-              } else {
-                setCategories([]);
-              }
-            } catch (error) {
+        } catch (error) {
+        }
+      };
+      const fetchBrand = async () => {
+        const session = await getSession();
+  
+        try {
+          const response = await axios.get(`${URL}/api/products/new-product/get-brand`, {
+            headers: {
+              Authorization: `Bearer ${session?.accessToken}`
             }
-          };
-      
-          fetchBrand();
-          fetchCategory();
+          });
+  
+          if (response.status === 200) {
+            const data = response.data.data;
+              setBrands(data);
+          } else {
+            setBrands([]);
+          }
+        } catch (error) {
+        }
+      };
+      const fetchCategory = async () => {
+        const session = await getSession();
+  
+        try {
+          const response = await axios.get(`${URL}/api/products/new-product/get-category`, {
+            headers: {
+              Authorization: `Bearer ${session?.accessToken}`
+            }
+          });
+  
+          if (response.status === 200) {
+            const data = response.data.data;
+            setCategories(data);
+          } else {
+            setCategories([]);
+          }
+        } catch (error) {
+        }
+      };
+    
+      fetchBrand();
+      fetchCategory();
 
-        fetchProducts();
-    }, [params]);
+      fetchProducts();
+  }, [params]);
 
-    const pageCount = Math.ceil(total / params.per_page);
+  const pageCount = Math.ceil(total / params.per_page);
 
-    return (
-        <>
-            <div className="flex items-center justify-between">
-                <Heading
-                    title="Danh sách sản phẩm"
-                    description="Quản lý sản phẩm"
-                />
-            </div>
-            <Separator />
-            <ProductsTableShell
-                categories={categories}
-                brands={brands}
-                data={products}
-                pageCount={pageCount}
-            />
-        </>
-    );
+  return (
+      <>
+          <div className="flex items-center justify-between">
+              <Heading
+                  title="Danh sách sản phẩm"
+                  description="Quản lý sản phẩm"
+              />
+          </div>
+          <Separator />
+          <ProductsTableShell
+              categories={categories}
+              brands={brands}
+              data={products}
+              pageCount={pageCount}
+          />
+      </>
+  );
 }

@@ -128,7 +128,6 @@ export const UserClient = () => {
           }
         }
       } catch (error) {
-          console.log(error);
       }
     };
 
