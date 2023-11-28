@@ -16,6 +16,7 @@ const URL = process.env.NEXT_PUBLIC_URL_API;
 const HomePage: React.FC<HomePageProps> = async ({ }) => {
     const [banners, setBanners] = useState([]);
     const [products, setProducts] = useState([]);
+    const [productTrendings, setProductTrendings] = useState([]);
 
     useEffect(() => {
         const fetchBanners = async () => {
@@ -44,8 +45,21 @@ const HomePage: React.FC<HomePageProps> = async ({ }) => {
             } catch (error) {
             }
         };
+        const fetchProductTrendings = async () => {
+            try {
+                const response = await axios.get(`${URL}/api/products/public-store/product-trending`);
+                if (response.status === 200) {
+                    const data = response.data;
+                    setProductTrendings(data.data);
+                } else {
+                    setProductTrendings([]);
+                }
+            } catch (error) {
+            }
+        };
 
         fetchProducts();
+        fetchProductTrendings();
         fetchBanners();
     }, []);
 
@@ -55,6 +69,18 @@ const HomePage: React.FC<HomePageProps> = async ({ }) => {
                 <div className="my-8">
                     <Carousel images={banners.map((obj: Banner) => obj.image.path)} />
                     <Separator className="mt-4 mb-8"/>
+                    <Separator className="mt-4 mb-8"/>
+                    <Heading
+                        title="Sản phẩm nổi bật"
+                        description="Dưới đây là danh sách các sản phẩm nổi bật chúng tôi đề xuất cho bạn."
+                    />
+                    <div className="my-4">
+                     {productTrendings.length > 0 ? (
+                        <ProductGrid products={productTrendings} />
+                    ) : (
+                        <ProductSkeletonGrid />
+                    )}
+                    </div>
                     <Heading
                         title="Sản phẩm mới nhất"
                         description="Dưới đây là danh sách các sản phẩm chúng tôi có sẵn cho bạn."

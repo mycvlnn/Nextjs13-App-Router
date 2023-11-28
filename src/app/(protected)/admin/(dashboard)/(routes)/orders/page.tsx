@@ -1,22 +1,22 @@
-import { Category } from "@/types";
+import { Order } from "@/types";
 import { Metadata } from "next";
-import { CategoryClient } from "./client";
+import { OrderClient } from "./client";
 
-interface CategoriesPageProps {
+interface OrdersPageProps {
     searchParams: {
       [key: string]: string | string[] | undefined;
     };
 }
   
 export const metadata: Metadata = {
-    title: "Admin | Danh mục",
-    description: "Quản lý danh mục",
+    title: "Admin | Đơn đặt hàng",
+    description: "Quản lý đơn đặt hàng",
   };
 
-export default async function CategoriesPage({
+export default async function OrdersPage({
     searchParams,
-}: CategoriesPageProps) {
-    const { page, per_page, sort, name, keywords } = searchParams ?? {};
+}: OrdersPageProps) {
+    const { page, per_page, sort, name, keywords, status } = searchParams ?? {};
     const limit = typeof per_page === "string" ? parseInt(per_page) : 10;
     const offset =
         typeof page === "string"
@@ -27,23 +27,25 @@ export default async function CategoriesPage({
     const [column, order] =
         typeof sort === "string"
         ? (sort.split(".") as [
-            keyof Category | undefined,
+            keyof Order | undefined,
             "asc" | "desc" | undefined,
             ])
             : [];
+    const active = status || "";
     const params = {
         sort_key: column,
         order_by: order,
         per_page: limit,
         page: page,
-        keywords: name
+        keywords: name,
+        status: active
     }
 
 
     return (
         <div className="flex-col">
             <div className="container flex-1 space-y-4 p-8 pt-6">
-                <CategoryClient params={params}/>
+                <OrderClient params={params}/>
             </div>
         </div>
     );

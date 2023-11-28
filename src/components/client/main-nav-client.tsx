@@ -23,9 +23,9 @@ export function MainNavClient({
         <NavigationMenu>
             <NavigationMenuList>
                 <NavigationMenuItem key="iphone">
-                    <Link href="/iphone"
+                    <Link href="/category/iphone"
                         className={cn("text-sm font-medium transition-colors hover:text-primary",
-                                pathname.startsWith(`/iphone`) ? 'text-black dark:text-white' : 'text-muted-foreground'
+                                pathname.startsWith(`/category/iphone`) ? 'text-black dark:text-white' : 'text-muted-foreground'
                         )} legacyBehavior passHref>
                         <NavigationMenuLink className={navigationMenuTriggerStyle()}>
                         <TooltipProvider>
@@ -35,9 +35,9 @@ export function MainNavClient({
                     </Link>
                 </NavigationMenuItem>
                 <NavigationMenuItem key="ipad">
-                    <Link href="/ipad"
+                    <Link href="/category/ipad"
                         className={cn("text-sm font-medium transition-colors hover:text-primary",
-                                pathname.startsWith(`/ipad`) ? 'text-black dark:text-white' : 'text-muted-foreground'
+                                pathname.startsWith(`/category/ipad`) ? 'text-black dark:text-white' : 'text-muted-foreground'
                         )} legacyBehavior passHref>
                         <NavigationMenuLink className={navigationMenuTriggerStyle()}>
                         <TooltipProvider>
@@ -47,9 +47,9 @@ export function MainNavClient({
                     </Link>
                 </NavigationMenuItem>
                 <NavigationMenuItem key="mac">
-                    <Link href="/mac"
+                    <Link href="/category/mac"
                         className={cn("text-sm font-medium transition-colors hover:text-primary",
-                                pathname.startsWith(`/mac`) ? 'text-black dark:text-white' : 'text-muted-foreground'
+                                pathname.startsWith(`/category/mac`) ? 'text-black dark:text-white' : 'text-muted-foreground'
                         )} legacyBehavior passHref>
                         <NavigationMenuLink className={navigationMenuTriggerStyle()}>
                         <TooltipProvider>
@@ -59,9 +59,9 @@ export function MainNavClient({
                     </Link>
                 </NavigationMenuItem>
                 <NavigationMenuItem key="apple-watch">
-                    <Link href="/apple-watch"
+                    <Link href="/category/apple-watch"
                         className={cn("text-sm font-medium transition-colors hover:text-primary",
-                                pathname.startsWith(`/apple-watch`) ? 'text-black dark:text-white' : 'text-muted-foreground'
+                                pathname.startsWith(`/category/apple-watch`) ? 'text-black dark:text-white' : 'text-muted-foreground'
                         )} legacyBehavior passHref>
                         <NavigationMenuLink className={navigationMenuTriggerStyle()}>
                         <TooltipProvider>
@@ -71,9 +71,9 @@ export function MainNavClient({
                     </Link>
                 </NavigationMenuItem>
                 <NavigationMenuItem key="phu-kien">
-                    <Link href="/phu-kien"
+                    <Link href="/category/phu-kien"
                         className={cn("text-sm font-medium transition-colors hover:text-primary",
-                                pathname.startsWith(`/phu-kien`) ? 'text-black dark:text-white' : 'text-muted-foreground'
+                                pathname.startsWith(`/category/phu-kien`) ? 'text-black dark:text-white' : 'text-muted-foreground'
                         )} legacyBehavior passHref>
                         <NavigationMenuLink className={navigationMenuTriggerStyle()}>
                         <TooltipProvider>

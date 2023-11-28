@@ -15,6 +15,25 @@ export type USER = {
     active: string
 }
 
+export type Customer = {
+    id: string;
+    name: string;
+    phone: string;
+    provinceId: string;
+    districtId: string;
+    wardId: string;
+    address: string;
+    email: string;
+    password: string;
+    image: {
+        id: string;
+        imageable_id: string;
+        path: string;
+        imageable_type: string
+    };
+    active: boolean
+}
+
 export type Role = {
     id: string;
     name: string;
@@ -41,6 +60,22 @@ export type Category = {
     description: string;
     active: boolean;
     slug: string;
+}
+
+export type Order = {
+    id: string;
+    customer_id: string;
+    customer: Customer[];
+    total: number;
+    createdAt: string;
+    sku_id: string;
+    sku: Sku[];
+    price: number;
+    quantity: number;
+    code: string;
+    status: number;
+    address: string;
+    description: string;
 }
 
 export type Brand = {
@@ -72,16 +107,7 @@ export type Product = {
     percent_discount: number;
     price_discount: number;
     trending: boolean;
-    galleries: {
-        id: string;
-        product_id: number;
-        image: {
-            id: string;
-            imageable_id: string;
-            path: string;
-            imageable_type: string
-        };
-    }[];
+    galleries: ProductGallery[];
     image: {
         id: string;
         imageable_id: string;
@@ -105,6 +131,17 @@ export type Product = {
         quantity: string;
         property_options: PropertyValueType[];
     }[];
+}
+
+export type ProductGallery = {
+    id: string;
+    product_id: string;
+    image: {
+        id: string;
+        imageable_id: string;
+        path: string;
+        imageable_type: string
+    };
 }
 
 export type PropertyValueType = {
@@ -150,13 +187,12 @@ export type PropertyOptionSku = {
     property_option_id: PropertyOption;
 }
 
-export type ProductGallery = {
+export type Cart = {
     id: string;
-    product_id: string;
-    image: {
-        id: string;
-        imageable_id: string;
-        path: string;
-        imageable_type: string
-    };
+    price: number;
+    quantity: number;
+    image: string;
+    name: string;
+    sku_id: number;
+    property_options: PropertyOption[];
 }

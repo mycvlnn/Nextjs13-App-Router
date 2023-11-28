@@ -38,6 +38,7 @@ import { FileWithPreview } from "@/types/types";
 import { generateReactHelpers } from "@uploadthing/react/hooks";
 import { getSession } from "next-auth/react";
 import Image from "next/image";
+import Tiptap from "@/components/Tiptap";
 
 const URL = process.env.NEXT_PUBLIC_URL_API;
 
@@ -621,10 +622,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData }) => {
                                 <FormItem>
                                     <FormLabel>Mô tả</FormLabel>
                                     <FormControl>
-                                        <Textarea
-                                            disabled={loading}
-                                            {...field}
-                                        />
+                                        <Tiptap description={field.value} onChange={field.onChange} />
                                     </FormControl>
                                     <FormMessage/>
                                 </FormItem>

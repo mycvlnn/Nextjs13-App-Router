@@ -15,19 +15,19 @@ export const docsConfig: DocsConfig = {
    sidebarNav: [
       {
         title: 'Iphone',
-        href: '/iphone',
+        href: '/category/iphone',
       },
       {
         title: 'Ipad',
-        href: '/ipad',
+        href: '/category/ipad',
       },
       {
         title: 'Mac',
-        href: '/mac',
+        href: '/category/mac',
         },
         {
             title: 'Apple Watch',
-            href: '/apple-watch',
+            href: '/category/apple-watch',
           },
       {
          title: 'Blog',

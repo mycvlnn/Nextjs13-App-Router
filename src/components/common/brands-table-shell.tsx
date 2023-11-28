@@ -95,8 +95,7 @@ export function BrandsTableShell({
               <DropdownMenuItem onClick={() => {
                 setOpen(true)
                 setBrandId(row.original.id.toString())
-              }}
-                >
+              }}>
                 Xóa
                 <DropdownMenuShortcut>⌘⌫</DropdownMenuShortcut>
               </DropdownMenuItem>

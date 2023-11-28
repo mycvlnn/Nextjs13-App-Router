@@ -2,6 +2,7 @@ import { ModeToggle } from "@/components/select-template";
 import Link from "next/link";
 import { MainNavClient } from "./main-nav-client";
 import { CommandMenu } from "./search";
+import NavbarCarts from "./cart";
 
 const NavbarClient = async () => {
     
@@ -18,7 +19,7 @@ const NavbarClient = async () => {
                     </div>
                     <ModeToggle />
                     {/* {authenticated ? <UserNav /> : <LoginDialog />} */}
-                    {/* <CartSheet /> */}
+                    <NavbarCarts />
                 </div>
             </div>
         </header>

@@ -9,8 +9,8 @@ export default function NotFound({}) {
       <ErrorCard
         title="Không tìm thấy trang này"
         description="Trang bạn đang tìm kiếm có thể đã hết hạn hoặc bạn có thể đã được cập nhật rồi."
-        retryLink={`/admin/dashboards`}
-        retryLinkText="Đến trang chủ"
+        retryLink={`/`}
+        retryLinkText="Quay lại"
       />
     </Shell>
     );

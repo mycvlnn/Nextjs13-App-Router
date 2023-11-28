@@ -1,28 +1,37 @@
+"use client";
+
 import {
   Avatar,
   AvatarFallback,
   AvatarImage,
 } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuShortcut,
-  DropdownMenuTrigger,
+  DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
-import { Button } from "@/components/ui/button";
 import { signOut } from "next-auth/react";
 import toast from "react-hot-toast";
 
 export default function UserNav() {
 
-  const onLogout = () => {
-    signOut();
-    toast.success("Đăng xuất thành công!");
-};
+  const onLogout = async () => {
+    try {
+      await signOut();
+      toast.success("Đăng xuất thành công!");
+    } catch (error) {
+      toast.error("Đã xảy ra lỗi khi đăng xuất!");
+    }
+  };
+
+  const handleLogoutClick = () => {
+    onLogout();
+  };
 
   return (
     <DropdownMenu>
@@ -37,21 +46,14 @@ export default function UserNav() {
       <DropdownMenuContent className="w-56" align="end" forceMount>
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
-            <p className="text-sm font-medium leading-none">Hùng đào</p>
+            <p className="text-sm font-medium leading-none">Admin</p>
             <p className="text-xs leading-none text-muted-foreground">
-              Hùng đào
+              Admin
             </p>
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuGroup>
-          <DropdownMenuItem>
-            Settings
-            <DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
-          </DropdownMenuItem>
-        </DropdownMenuGroup>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem>
+        <DropdownMenuItem onClick={handleLogoutClick}>
             Đăng xuất
           <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
         </DropdownMenuItem>

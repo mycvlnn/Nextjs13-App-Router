@@ -1,13 +1,13 @@
 "use client"
 
-import { CategoriesTableShell } from "@/components/common/categories-table-shell";
+import { OrdersTableShell } from "@/components/common/orders-table-shell";
 import { Heading } from "@/components/ui/heading";
 import { Separator } from "@/components/ui/separator";
 import axios from "axios";
 import { getSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 
-interface CategoryClientProps {
+interface OrderClientProps {
     params: {
         sort_key: any,
         order_by: any,
@@ -19,15 +19,15 @@ interface CategoryClientProps {
 
 const URL = process.env.NEXT_PUBLIC_URL_API;
 
-export const CategoryClient: React.FC<CategoryClientProps> = ({ params }) => {
-    const [categories, setCategories] = useState([]);
+export const OrderClient: React.FC<OrderClientProps> = ({ params }) => {
+    const [orders, setOrders] = useState([]);
     const [total, setTotal] = useState(0);
 
     useEffect(() => {
-        const fetchCategories = async () => {
+        const fetchOrders = async () => {
             const session = await getSession();
             try {
-                const response = await axios.get(`${URL}/api/categories`, {
+                const response = await axios.get(`${URL}/api/orders`, {
                     params,
                     headers: {
                         Authorization: `Bearer ${session?.accessToken}`,
@@ -36,17 +36,17 @@ export const CategoryClient: React.FC<CategoryClientProps> = ({ params }) => {
 
                 if (response.status === 200) {
                     const data = response.data;
-                    setCategories(data.data);
+                    setOrders(data.data);
                     setTotal(data.meta.total);
                 } else {
-                    setCategories([]);
+                    setOrders([]);
                     setTotal(0);
                 }
             } catch (error) {
             }
         };
 
-        fetchCategories();
+        fetchOrders();
     }, [params]);
 
     const pageCount = Math.ceil(total / params.per_page);
@@ -55,13 +55,13 @@ export const CategoryClient: React.FC<CategoryClientProps> = ({ params }) => {
         <>
             <div className="flex items-center justify-between">
                 <Heading
-                    title="Danh sách danh mục"
-                    description="Quản lý danh mục"
+                    title="Danh sách đơn đặt hàng"
+                    description="Quản lý đơn đặt hàng"
                 />
             </div>
             <Separator />
-            <CategoriesTableShell
-                data={categories}
+            <OrdersTableShell
+                data={orders}
                 pageCount={pageCount}
             />
         </>

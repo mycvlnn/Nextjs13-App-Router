@@ -13,6 +13,7 @@ import { Switch } from "../ui/switch";
 import { getSession } from "next-auth/react";
 import axios from "axios";
 import toast from "react-hot-toast";
+import { AlertModal } from "../modals/alert-modal";
 
 const URL = process.env.NEXT_PUBLIC_URL_API;
 
@@ -27,6 +28,8 @@ export function CategoriesTableShell({
 }: CategoriesTableShellProps) {
   const [isPending, startTransition] = React.useTransition();
   const [isLoading, setIsLoading] = React.useState(false);
+  const [open, setOpen] = React.useState(false);  
+  const [category, setCategory] = React.useState("");  
 
   const handleSwitchChange = async(isChecked: boolean, categoryId: string) => {
       setIsLoading(true);
@@ -116,7 +119,10 @@ export function CategoriesTableShell({
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem
+              <DropdownMenuItem onClick={() => {
+                setOpen(true)
+                setCategory(row.original.id.toString())
+              }}
               >
                 Xóa
                 <DropdownMenuShortcut>⌘⌫</DropdownMenuShortcut>
@@ -129,7 +135,35 @@ export function CategoriesTableShell({
     [data, isPending],
   );
 
+  const onDelete = async () => {
+    try {
+      setIsLoading(true);
+      const session = await getSession();
+      const response = await axios.delete(`${URL}/api/categories/${category}`,{
+          headers: {
+              Authorization: `Bearer ${session?.accessToken}`
+          },
+        })
+      if (response.status === 200) {
+          toast.success("Xóa thành công");
+      }
+      window.location.reload();
+    } catch (error) {
+        toast.error("Đã xảy ra lỗi");
+    } finally {
+        setIsLoading(false);
+        setOpen(false);
+    }
+};
+
+
   return (
+    <>
+    <AlertModal
+        isOpen={open}
+        onClose={() => setOpen(false)}
+        onConfirm={ onDelete }
+        loading={isLoading} />
     <DataTable
       columns={columns}
       data={data}
@@ -152,5 +186,6 @@ export function CategoriesTableShell({
       ]}
       newRowLink={`/admin/categories/new`}
     />
+    </>
   );
 }

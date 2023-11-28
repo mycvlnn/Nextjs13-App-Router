@@ -14,6 +14,7 @@ import { getSession } from "next-auth/react";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
+import { AlertModal } from "../modals/alert-modal";
 
 const URL = process.env.NEXT_PUBLIC_URL_API;
 
@@ -32,27 +33,29 @@ export function ProductsTableShell({
 }: ProductsTableShellProps) {
   const [isPending, startTransition] = React.useTransition();
   const [isLoading, setIsLoading] = React.useState(false);
+  const [open, setOpen] = React.useState(false);
+  const [productId, setProductId] = React.useState("");
 
   const handleSwitchChange = async(isChecked: boolean, productId: string) => {
-      setIsLoading(true);
-      const session = await getSession();
-      try {
-        const response = await axios.post(`${URL}/api/products/active/${productId}`, { "active": isChecked }, {
-              headers: {
-                  'Content-Type': 'application/json',
-                  Authorization: `Bearer ${session?.accessToken}`,
-              }
-          });
+    setIsLoading(true);
+    const session = await getSession();
+    try {
+      const response = await axios.post(`${URL}/api/products/active/${productId}`, { "active": isChecked }, {
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${session?.accessToken}`,
+            }
+        });
 
-        if (response.status === 200) {
-          toast.success("Cập nhật thành công!");
-          window.location.reload();
-        }
-      } catch (error) {
-      } finally {
-        setIsLoading(false);
+      if (response.status === 200) {
+        toast.success("Cập nhật thành công!");
+        window.location.reload();
       }
-  }
+    } catch (error) {
+    } finally {
+      setIsLoading(false);
+    }
+}
 
   const activeValue = {
     0: "Ẩn",
@@ -120,6 +123,7 @@ export function ProductsTableShell({
             header: ({ column }) => (
               <DataTableColumnHeader column={column} title="Số lượng" />
             ),
+            enableSorting: false,
       },
       {
         accessorKey: "price",
@@ -128,7 +132,8 @@ export function ProductsTableShell({
         ),
         cell: ({ row }) => (
           new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(row.original.price)
-        )
+        ),
+        enableSorting: false,
       },
       {
         accessorKey: "active",
@@ -173,7 +178,10 @@ export function ProductsTableShell({
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem
+              <DropdownMenuItem onClick={() => {
+                setOpen(true)
+                setProductId(row.original.id.toString())
+              }}
               >
                 Xóa
                 <DropdownMenuShortcut>⌘⌫</DropdownMenuShortcut>
@@ -185,45 +193,73 @@ export function ProductsTableShell({
     ],
     [data, isPending],
   );
-
+  
+  const onDelete = async () => {
+    try {
+      setIsLoading(true);
+      const session = await getSession();
+      const response = await axios.delete(`${URL}/api/products/${productId}`,{
+          headers: {
+              Authorization: `Bearer ${session?.accessToken}`
+          },
+        })
+      if (response.status === 200) {
+          toast.success("Xóa thành công");
+      }
+      window.location.reload();
+    } catch (error) {
+        toast.error("Đã xảy ra lỗi");
+    } finally {
+        setIsLoading(false);
+        setOpen(false);
+    }
+  };
+  
   return (
-    <DataTable
-      columns={columns}
-      data={data}
-      pageCount={pageCount}
-      filterableColumns={[
-      {
-          id: "active",
-          title: "Trạng thái",
-          options: Object.entries(activeValue).map(([value, label]) => ({
-            label: `${label.charAt(0).toUpperCase()}${label.slice(1)}`,
-            value: value,
-          })),
-       },
-        {
-        id: "brand_id",
-        title: "Thương hiệu",
-        options: Object.entries(brandValue).map(([value, label]) => ({
-            label: `${label.charAt(0).toUpperCase()}${label.slice(1)}`,
-            value: value,
-        })),
-        },
-        {
-        id: "category_id",
-        title: "Danh mục",
-        options: Object.entries(categoryValue).map(([value, label]) => ({
-            label: `${label.charAt(0).toUpperCase()}${label.slice(1)}`,
-            value: value,
-        })),
-        },
-      ]}
-      searchableColumns={[
-        {
-          id: "name",
-          title: "sản phẩm",
-        },
-      ]}
-      newRowLink={`/admin/products/new`}
-    />
+    <>
+      <AlertModal
+        isOpen={open}
+        onClose={() => setOpen(false)}
+        onConfirm={ onDelete }
+        loading={isLoading} />
+        <DataTable
+          columns={columns}
+          data={data}
+          pageCount={pageCount}
+          filterableColumns={[
+          {
+              id: "active",
+              title: "Trạng thái",
+              options: Object.entries(activeValue).map(([value, label]) => ({
+                label: `${label.charAt(0).toUpperCase()}${label.slice(1)}`,
+                value: value,
+              })),
+          },
+            {
+            id: "brand_id",
+            title: "Thương hiệu",
+            options: Object.entries(brandValue).map(([value, label]) => ({
+                label: `${label.charAt(0).toUpperCase()}${label.slice(1)}`,
+                value: value,
+            })),
+            },
+            {
+            id: "category_id",
+            title: "Danh mục",
+            options: Object.entries(categoryValue).map(([value, label]) => ({
+                label: `${label.charAt(0).toUpperCase()}${label.slice(1)}`,
+                value: value,
+            })),
+            },
+          ]}
+          searchableColumns={[
+            {
+              id: "name",
+              title: "sản phẩm",
+            },
+          ]}
+          newRowLink={`/admin/products/new`}
+        />
+    </>
   );
 }

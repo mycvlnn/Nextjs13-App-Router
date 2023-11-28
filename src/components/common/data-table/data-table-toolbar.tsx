@@ -70,7 +70,7 @@ export function DataTableToolbar<TData>({
           )}
         {isFiltered && (
           <Button
-            aria-label="Reset filters"
+            aria-label="Làm mới"
             variant="ghost"
             className="h-8 px-2 lg:px-3"
             onClick={() => table.resetColumnFilters()}
@@ -81,12 +81,18 @@ export function DataTableToolbar<TData>({
         )}
       </div>
       <div className="flex items-center space-x-2">
+        {
+
+        }
       <TooltipProvider>
           <Tooltip>
-              <TooltipTrigger asChild>
+            <TooltipTrigger asChild>
+              {(newRowLink != "") && (
                   <Button variant="default" size="default" onClick={()=>router.push(`${newRowLink}`)}>
                       <PlusCircledIcon className="w-4 h-4 mr-2" /> Thêm mới
                   </Button>
+              )
+              }
               </TooltipTrigger>
               <TooltipContent>
               <p>Thêm mới</p>

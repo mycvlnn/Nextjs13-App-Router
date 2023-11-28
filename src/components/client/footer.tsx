@@ -9,23 +9,23 @@ const data = [
         links: [
             {
                 label: 'Iphone',
-                url: '/iphone',
+                url: '/category/iphone',
             },
             {
                 label: 'Ipad',
-                url: '/ipad',
+                url: '/category/ipad',
             },
             {
                 label: 'Mac',
-                url: '/mac',
+                url: '/category/mac',
             },
             {
                 label: 'Apple Watch',
-                url: '/apple-watch',
+                url: '/category/apple-watch',
             },
             {
                 label: 'Phụ kiện',
-                url: '/phu-kien',
+                url: '/category/phu-kien',
             },
         ],
     },

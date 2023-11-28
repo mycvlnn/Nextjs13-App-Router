@@ -13,6 +13,7 @@ import { Switch } from "../ui/switch";
 import { getSession } from "next-auth/react";
 import axios from "axios";
 import toast from "react-hot-toast";
+import { AlertModal } from "../modals/alert-modal";
 
 const URL = process.env.NEXT_PUBLIC_URL_API;
 
@@ -27,12 +28,14 @@ export function PropertiesTableShell({
 }: PropertiesTableShellProps) {
   const [isPending, startTransition] = React.useTransition();
   const [isLoading, setIsLoading] = React.useState(false);
+  const [open, setOpen] = React.useState(false);
+  const [propertyId, setPropertyId] = React.useState("");
 
-  const handleSwitchChange = async(isChecked: boolean, categoryId: string) => {
+  const handleSwitchChange = async(isChecked: boolean, propertyId: string) => {
       setIsLoading(true);
       const session = await getSession();
       try {
-        const response = await axios.post(`${URL}/api/properties/active/${categoryId}`, { "active": isChecked }, {
+        const response = await axios.post(`${URL}/api/properties/active/${propertyId}`, { "active": isChecked }, {
               headers: {
                   'Content-Type': 'application/json',
                   Authorization: `Bearer ${session?.accessToken}`,
@@ -111,7 +114,10 @@ export function PropertiesTableShell({
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem
+              <DropdownMenuItem  onClick={() => {
+                setOpen(true)
+                setPropertyId(row.original.id.toString())
+              }}
               >
                 Xóa
                 <DropdownMenuShortcut>⌘⌫</DropdownMenuShortcut>
@@ -124,7 +130,34 @@ export function PropertiesTableShell({
     [data, isPending],
   );
 
+  const onDelete = async () => {
+    try {
+      setIsLoading(true);
+      const session = await getSession();
+      const response = await axios.delete(`${URL}/api/properties/${propertyId}`,{
+          headers: {
+              Authorization: `Bearer ${session?.accessToken}`
+          },
+        })
+      if (response.status === 200) {
+          toast.success("Xóa thành công");
+      }
+      window.location.reload();
+    } catch (error) {
+        toast.error("Đã xảy ra lỗi");
+    } finally {
+        setIsLoading(false);
+        setOpen(false);
+    }
+  };
+
   return (
+    <>
+      <AlertModal
+        isOpen={open}
+        onClose={() => setOpen(false)}
+        onConfirm={ onDelete }
+        loading={isLoading} />
     <DataTable
       columns={columns}
       data={data}
@@ -147,5 +180,6 @@ export function PropertiesTableShell({
       ]}
       newRowLink={`/admin/properties/new`}
     />
+        </>
   );
 }

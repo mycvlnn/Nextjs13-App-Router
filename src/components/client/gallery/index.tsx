@@ -7,7 +7,7 @@ import GalleryTab from "./gallery-tab";
 import { ProductGallery } from "@/types";
 
 interface GalleryProps {
-  images: ProductGallery | null;
+  images: ProductGallery[] | undefined | null;
 }
 
 const Gallery: React.FC<GalleryProps> = ({

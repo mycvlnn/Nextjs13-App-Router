@@ -1,128 +1,95 @@
-// import Link from "next-intl/link";
+"use client";
 
-// import { getCartAction } from "~/server/actions/cart";
-// import { cn, formatPrice } from "~/server/utils";
-// import { CartLineItems } from "~/islands/checkout/cart-line-items";
-// import { Icons } from "~/islands/icons";
-// import { Badge } from "~/islands/primitives/badge";
-// import { Button, buttonVariants } from "~/islands/primitives/button";
-// import { Separator } from "~/islands/primitives/separator";
-// import {
-//   Sheet,
-//   SheetContent,
-//   SheetFooter,
-//   SheetHeader,
-//   SheetTitle,
-//   SheetTrigger,
-// } from "~/islands/primitives/sheet";
+import { LogIn, LogOut, ShoppingBag, User as UserIcon, UserPlus2 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
-// export async function CartSheet() {
-//   const cartLineItems = await getCartAction();
+import { Button } from "@/components/ui/button";
+import useCart from "@/hooks/use-cart";
+import { deleteCookie, getCookie } from "cookies-next";
+import toast from "react-hot-toast";
 
-//   const itemCount = cartLineItems.reduce(
-//     (total, item) => total + Number(item.quantity),
-//     0,
-//   );
+const NavbarCarts = () => {
+    const [isMounted, setIsMounted] = useState(false);
+    const [isLogin, setIsLogin] = useState(false);
+    
+    useEffect(() => {
+        setIsMounted(true);
+        const checkLogin = async () => {
+            const user = await getCookie('user');
+            if (user) {
+                setIsLogin(true);
+            }
+        }
+        checkLogin();
+    }, []);
 
-//   const cartTotal = cartLineItems.reduce(
-//     (total, item) => total + Number(item.quantity) * Number(item.price),
-//     0,
-//   );
+    const router = useRouter();
+    const cart = useCart();
 
-//   return (
-//     <Sheet>
-//       <SheetTrigger asChild>
-//         <Button
-//           aria-label="Open cart"
-//           variant="outline"
-//           size="icon"
-//           className="relative"
-//         >
-//           {itemCount > 0 && (
-//             <Badge
-//               variant="secondary"
-//               className="absolute -right-2 -top-2 h-6 w-6 justify-center rounded-full p-2.5"
-//             >
-//               {itemCount}
-//             </Badge>
-//           )}
-//           <Icons.cart className="h-4 w-4" aria-hidden="true" />
-//         </Button>
-//       </SheetTrigger>
-//       <SheetContent className="flex w-full flex-col pr-0 sm:max-w-lg">
-//         <SheetHeader className="px-1">
-//           <SheetTitle>Cart {itemCount > 0 && `(${itemCount})`}</SheetTitle>
-//         </SheetHeader>
-//         <div className="pr-6">
-//           <Separator />
-//         </div>
-//         {itemCount > 0 ? (
-//           <>
-//             <div className="flex flex-1 flex-col gap-5 overflow-hidden">
-//               <CartLineItems cartLineItems={cartLineItems} />
-//             </div>
-//             <div className="grid gap-1.5 pr-6 text-sm">
-//               <Separator className="mb-2" />
-//               <div className="flex">
-//                 <span className="flex-1">Subtotal</span>
-//                 <span>{formatPrice(cartTotal.toFixed(2))}</span>
-//               </div>
-//               <div className="flex">
-//                 <span className="flex-1">Shipping</span>
-//                 <span>Free</span>
-//               </div>
-//               <div className="flex">
-//                 <span className="flex-1">Taxes</span>
-//                 <span>Calculated at checkout</span>
-//               </div>
-//               <Separator className="mt-2" />
-//               <div className="flex">
-//                 <span className="flex-1">Total</span>
-//                 <span>{formatPrice(cartTotal.toFixed(2))}</span>
-//               </div>
-//               <SheetFooter className="mt-1.5">
-//                 <SheetTrigger asChild>
-//                   <Link
-//                     aria-label="View your cart"
-//                     href="/cart"
-//                     className={buttonVariants({
-//                       size: "sm",
-//                       className: "w-full",
-//                     })}
-//                   >
-//                     View your cart
-//                   </Link>
-//                 </SheetTrigger>
-//               </SheetFooter>
-//             </div>
-//           </>
-//         ) : (
-//           <div className="flex h-full flex-col items-center justify-center space-y-1">
-//             <Icons.cart
-//               className="mb-4 h-16 w-16 text-muted-foreground"
-//               aria-hidden="true"
-//             />
-//             <div className="text-xl font-medium text-muted-foreground">
-//               Your cart is empty
-//             </div>
-//             <SheetTrigger asChild>
-//               <Link
-//                 aria-label="Add items to your cart to checkout"
-//                 href="/products"
-//                 className={cn(
-//                   buttonVariants({
-//                     variant: "link",
-//                     size: "sm",
-//                     className: "text-sm text-muted-foreground",
-//                   }),
-//                 )}
-//               >
-//                 Add items to your cart to checkout
-//               </Link>
-//             </SheetTrigger>
-//           </div>
-//         )}
-//       </SheetContent>
-//     </Sheet>
-//   );
-// }
+    if (!isMounted) {
+        return null;
+    }
+    const handleLogout = async () => {
+        try {
+            deleteCookie('user');
+            toast.success('Đăng xuất thành công!');
+            router.push('/');
+            window.location.reload();
+        } catch (error) {
+        }
+    };
+
+return ( 
+    <div className="ml-auto flex items-center gap-x-2">
+    <Button onClick={() => router.push('/cart')} variant="outline" size="sm">
+        <ShoppingBag
+            className="w-4 h-4"
+        />
+        <span className="ml-2 text-sm font-medium">
+          {cart.items.length}
+        </span>
+    </Button>
+    {
+        isLogin ? (
+            <>
+                <Button onClick={() => router.push('/user/profile')} variant="outline" size="sm">
+                    <UserIcon
+                        className="w-4 h-4"
+                    />
+                </Button>
+                <Button onClick={handleLogout} variant="default" size="sm">
+                    <LogOut
+                        className="w-4 h-4"
+                    />
+                    <span className="ml-2 text-sm font-medium">
+                    Đăng xuất
+                    </span>
+                </Button>
+            </>
+        ): (
+            <>         
+            <Button onClick={() => router.push('/user/login')} variant="default" size="sm">
+                <LogIn
+                    className="w-4 h-4"
+                />
+                <span className="ml-2 text-sm font-medium">
+                Đăng nhập
+                </span>
+            </Button>
+            <Button onClick={() => router.push('/user/register')} variant="default" size="sm">
+                <UserPlus2
+                    className="w-4 h-4"
+                />
+                <span className="ml-2 text-sm font-medium">
+                Đăng ký
+                </span>
+            </Button>      
+            </>
+        )
+    }  
+    </div>
+  );
+}
+ 
+export default NavbarCarts;
