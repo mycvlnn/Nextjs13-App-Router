@@ -99,18 +99,6 @@ export function MainNav({
                         </NavigationMenuLink>
                     </Link>
                 </NavigationMenuItem>
-                <NavigationMenuItem key="banners">
-                    <Link href="/admin/banners"
-                        className={cn("text-sm font-medium transition-colors hover:text-primary",
-                                pathname.startsWith(`/admin/banners`) ? 'text-black dark:text-white' : 'text-muted-foreground'
-                        )} legacyBehavior passHref>
-                        <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                        <TooltipProvider>
-                            <p className="h-auto capitalize">Banner</p>
-                        </TooltipProvider>
-                        </NavigationMenuLink>
-                    </Link>
-                </NavigationMenuItem>
                 <NavigationMenuItem key="products">
                 <NavigationMenuTrigger className="h-auto capitalize">Sản phẩm</NavigationMenuTrigger>
                 <NavigationMenuContent>
@@ -158,6 +146,30 @@ export function MainNav({
                     ))}
                     </ul>
                     </NavigationMenuContent>
+                </NavigationMenuItem>
+                <NavigationMenuItem key="banners">
+                    <Link href="/admin/banners"
+                        className={cn("text-sm font-medium transition-colors hover:text-primary",
+                                pathname.startsWith(`/admin/banners`) ? 'text-black dark:text-white' : 'text-muted-foreground'
+                        )} legacyBehavior passHref>
+                        <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                        <TooltipProvider>
+                            <p className="h-auto capitalize">Banner</p>
+                        </TooltipProvider>
+                        </NavigationMenuLink>
+                    </Link>
+                </NavigationMenuItem>
+                <NavigationMenuItem key="blogs">
+                    <Link href="/admin/blogs"
+                        className={cn("text-sm font-medium transition-colors hover:text-primary",
+                                pathname.startsWith(`/admin/blogs`) ? 'text-black dark:text-white' : 'text-muted-foreground'
+                        )} legacyBehavior passHref>
+                        <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                        <TooltipProvider>
+                            <p className="h-auto capitalize">Blog</p>
+                        </TooltipProvider>
+                        </NavigationMenuLink>
+                    </Link>
                 </NavigationMenuItem>
                 <NavigationMenuItem key="settings">
                     <Link href="/admin/settings"

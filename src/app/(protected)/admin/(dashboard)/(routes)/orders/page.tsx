@@ -16,7 +16,7 @@ export const metadata: Metadata = {
 export default async function OrdersPage({
     searchParams,
 }: OrdersPageProps) {
-    const { page, per_page, sort, name, keywords, status } = searchParams ?? {};
+    const { page, per_page, sort, code, keywords, status } = searchParams ?? {};
     const limit = typeof per_page === "string" ? parseInt(per_page) : 10;
     const offset =
         typeof page === "string"
@@ -37,7 +37,7 @@ export default async function OrdersPage({
         order_by: order,
         per_page: limit,
         page: page,
-        keywords: name,
+        keywords: code,
         status: active
     }
 

@@ -13,7 +13,8 @@ interface OrderClientProps {
         order_by: any,
         per_page: number,
         page: any,
-        keywords: any
+        keywords: any,
+        status: any
     }
 }
 

@@ -2,7 +2,7 @@
 
 import Carousel from "@/components/client/carousel";
 import { ProductGrid, ProductSkeletonGrid } from "@/components/client/product-grid";
-import { Heading } from "@/components/ui/heading";
+import { Heading } from "@/components/ui/heading-home";
 import { Separator } from "@/components/ui/separator";
 import { Banner } from "@/types";
 import axios from "axios";

@@ -65,6 +65,7 @@ export type Category = {
 export type Order = {
     id: string;
     customer_id: string;
+    name: string;
     customer: Customer[];
     total: number;
     createdAt: string;
@@ -76,6 +77,7 @@ export type Order = {
     status: number;
     address: string;
     description: string;
+    filename: string;
 }
 
 export type Brand = {

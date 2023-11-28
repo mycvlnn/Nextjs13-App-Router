@@ -108,9 +108,9 @@ export default function Page() {
               <CardHeader className="space-y-1 w-[800px] h-auto">
                     <div className="grid grid-cols-12">
                       <div className="col-span-6">
-                        <CardTitle className="text-2xl">Thông tin tài khoản</CardTitle>
+                        <CardTitle className="text-2xl">Đổi mật khẩu</CardTitle>
                         <CardDescription>
-                            Cập nhật thông tin cá nhân
+                            Cập nhật mật khẩu
                         </CardDescription>
                       </div>
                   <div className="col-span-6 flex justify-end align-middle">
@@ -141,7 +141,7 @@ export default function Page() {
                       <TooltipProvider>
                           <Tooltip>
                               <TooltipTrigger asChild>
-                              <Button variant="default" size="icon"  type="button" className="ml-2" onClick={()=>(router.push('/user/profile'))}>
+                              <Button variant="outline" size="icon" className="ml-2" type="button" onClick={()=>(router.push('/user/profile'))}>
                                 <UserCog2 className="w-4 h-4"/>
                               </Button>
                               </TooltipTrigger>
@@ -153,7 +153,7 @@ export default function Page() {
                     <TooltipProvider>
                                 <Tooltip>
                                     <TooltipTrigger asChild>
-                                    <Button variant="outline" size="icon" type="button" className="ml-2" onClick={()=>(router.push('/user/changepassword'))}>
+                                    <Button variant="default" size="icon" className="ml-2" type="button" onClick={()=>(router.push('/user/changepassword'))}>
                                       <Fingerprint className="w-4 h-4"/>
                                     </Button>
                                     </TooltipTrigger>
@@ -181,79 +181,39 @@ export default function Page() {
                     <div className="grid gap-2">
                         <FormField
                         control={form.control}
-                        name="name"
+                        name="password"
                         render={({ field }) => (
                             <FormItem>
-                            <FormLabel>Họ tên</FormLabel>
+                            <FormLabel>Mật khẩu</FormLabel>
                             <FormControl>
                                 <Input
-                                type="text"
+                                type="password"
                                 disabled={isLoading}
-                                placeholder="Nhập họ tên"
+                                placeholder="Nhập mật khẩu"
                                 {...field}
                                 />
                             </FormControl>
-                            <FormMessage/>
+                            <FormMessage />
                             </FormItem>
                         )}
                         />
-                    </div>
-                    <div className="grid gap-2">
+                 </div>
+                 <div className="grid gap-2">
                         <FormField
                         control={form.control}
-                        name="phone"
+                        name="password_confirm"
                         render={({ field }) => (
                             <FormItem>
-                            <FormLabel>Điện thoại</FormLabel>
+                            <FormLabel>Xác nhận mật khẩu</FormLabel>
                             <FormControl>
                                 <Input
-                                type="text"
+                                type="password"
                                 disabled={isLoading}
-                                placeholder="Nhập số điện thoại"
+                                placeholder="Nhập mật khẩu"
                                 {...field}
                                 />
                             </FormControl>
-                            <FormMessage/>
-                            </FormItem>
-                        )}
-                        />
-                    </div>
-                    <div className="grid gap-2">
-                        <FormField
-                        control={form.control}
-                        name="email"
-                        render={({ field }) => (
-                            <FormItem>
-                            <FormLabel>Email</FormLabel>
-                            <FormControl>
-                                <Input
-                                type="text"
-                                disabled={isLoading}
-                                placeholder="Nhập email"
-                                {...field}
-                                />
-                            </FormControl>
-                            <FormMessage>{errorEmail??errorEmail}</FormMessage>
-                            </FormItem>
-                        )}
-                        />
-                    </div>
-                    <div className="grid gap-2">
-                        <FormField
-                        control={form.control}
-                        name="address"
-                        render={({ field }) => (
-                            <FormItem>
-                            <FormLabel>Địa chỉ</FormLabel>
-                            <FormControl>
-                                <Input
-                                type="text"
-                                disabled={isLoading}
-                                placeholder="Nhập địa chỉ"
-                                {...field}
-                                />
-                            </FormControl>
-                            <FormMessage>{errorEmail??errorEmail}</FormMessage>
+                            <FormMessage />
                             </FormItem>
                         )}
                         />
@@ -268,7 +228,7 @@ export default function Page() {
                         {isLoading ? (
                         <Icons.spinner className="h-4 w-4 animate-spin" />
                         ) : (
-                        "Cập nhật thông tin"
+                        "Cập nhật mật khẩu"
                         )}
                     </Button>
                     </CardFooter>

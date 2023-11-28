@@ -6,14 +6,11 @@ import { type ColumnDef } from "@tanstack/react-table";
 import Link from "next/link";
 import * as React from "react";
 import { Button } from "../ui/button";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuShortcut, DropdownMenuTrigger } from "../ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../ui/dropdown-menu";
 import { DataTable } from "./data-table/data-table";
 import { DataTableColumnHeader } from "./data-table/data-table-column-header";
-import { Switch } from "../ui/switch";
-import { getSession } from "next-auth/react";
-import axios from "axios";
+import { Copy, FileDown, PenSquareIcon } from "lucide-react";
 import toast from "react-hot-toast";
-import { AlertModal } from "../modals/alert-modal";
 
 const URL = process.env.NEXT_PUBLIC_URL_API;
 
@@ -27,30 +24,6 @@ export function OrdersTableShell({
   pageCount,
 }: OrdersTableShellProps) {
   const [isPending, startTransition] = React.useTransition();
-  const [isLoading, setIsLoading] = React.useState(false);
-  const [open, setOpen] = React.useState(false);  
-  const [category, setCategory] = React.useState("");  
-
-  // const handleSwitchChange = async(isChecked: boolean, categoryId: string) => {
-  //     setIsLoading(true);
-  //     const session = await getSession();
-  //     try {
-  //       const response = await axios.post(`${URL}/api/orders/active/${categoryId}`, { "active": isChecked }, {
-  //             headers: {
-  //                 'Content-Type': 'application/json',
-  //                 Authorization: `Bearer ${session?.accessToken}`,
-  //             }
-  //         });
-
-  //       if (response.status === 200) {
-  //         toast.success("Cập nhật thành công!");
-  //         window.location.reload();
-  //       }
-  //     } catch (error) {
-  //     } finally {
-  //       setIsLoading(false);
-  //     }
-  // }
 
   const activeValue = {
     0: "Đang đợi xác nhận",
@@ -60,24 +33,38 @@ export function OrdersTableShell({
     "-1": "Hủy đơn",
   }
 
+  const onCopy = (code: string) => {
+    navigator.clipboard.writeText(code.toString());
+    toast.success("Sao chép thành công");
+  };
+
   const columns = React.useMemo<ColumnDef<Order, unknown>[]>(
     () => [
       {
-        accessorKey: "id",
+        accessorKey: "code",
         header: ({ column }) => (
-            <DataTableColumnHeader column={column} title="#" className="w-[10px]"/>
+            <DataTableColumnHeader column={column} title="Mã đơn hàng" className="w-[100px]"/>
         ),
       },
       {
         accessorKey: "customer_id",
         header: ({ column }) => (
-          <DataTableColumnHeader column={column} title="Người đặt"  className="w-[150px]"/>
+          <DataTableColumnHeader column={column} title="Người đặt"  className="w-[100px]"/>
         ),
       },
       {
         accessorKey: "createdAt",
         header: ({ column }) => (
           <DataTableColumnHeader column={column} title="Ngày đặt hàng"  className="w-[100px]"/>
+        ),
+      },
+      {
+        accessorKey: "total",
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="Tổng tiền"  className="w-[100px]"/>
+        ),
+        cell: ({ row }) => (
+          new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(row.original.total)
         ),
       },
       {
@@ -105,22 +92,25 @@ export function OrdersTableShell({
                 <DotsHorizontalIcon className="h-4 w-4" aria-hidden="true" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-[160px]">
+            <DropdownMenuContent align="end" className="w-[220px]">
               <DropdownMenuItem asChild>
                 <Link
                   href={`/admin/orders/${row.original.id}`}
                 >
-                  Chỉnh sửa
+                  <PenSquareIcon className="w-4 h-4 mr-2"/> Cập nhật đơn hàng
                 </Link>
               </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => {
-                setOpen(true)
-                setCategory(row.original.id.toString())
-              }}
-              >
-                Xóa
-                <DropdownMenuShortcut>⌘⌫</DropdownMenuShortcut>
+              <DropdownMenuItem  onClick={()=>onCopy(row.original.code)}>
+                  <Copy className="w-4 h-4 mr-2"/> Sao chép mã đơn hàng
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link
+                  href={`${URL}/storage/${row.original.filename}`}
+                  target="_blank"
+                  download
+                >
+                  <FileDown className="w-4 h-4 mr-2"/>Tải xuống hóa đơn
+                </Link>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -148,7 +138,7 @@ export function OrdersTableShell({
       ]}
       searchableColumns={[
         {
-          id: "customer_id",
+          id: "code",
           title: "đơn hàng",
         },
       ]}
