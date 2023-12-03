@@ -1,27 +1,25 @@
 "use client";
 
-import { Category } from "@/types";
+import { Brand } from "@/types";
 import axios from "axios";
 import { getSession } from "next-auth/react";
 import { useEffect, useState } from "react";
-import CategoryForm from "./components/category-form";
+import BrandForm from "./components/brand-form";
+import { useParams } from "next/navigation";
 
 const URL = process.env.NEXT_PUBLIC_URL_API;
 
-const CategoryPage = ({
-  params
-}: {
-  params: { categoryId: string }
-}) => {
-  const [category, setCategory] = useState<Category | null>(null);
+const BrandPage = () => {
+  const params = useParams();
+  const [brand, setBrand] = useState<Brand | null>(null);
 
-  if (params.categoryId !== 'new') {
+  if (params.brandId !== 'new') {
     useEffect(() => {
       const fetchRole = async () => {
         const session = await getSession();
   
         try {
-          const response = await axios.get(`${URL}/api/categories/${params.categoryId}`, {
+          const response = await axios.get(`${URL}/api/brands/${params.brandId}`, {
             headers: {
               Authorization: `Bearer ${session?.accessToken}`
             }
@@ -29,9 +27,9 @@ const CategoryPage = ({
   
           if (response.status === 200) {
             const data = response.data;
-            setCategory(data.data);
+            setBrand(data.data);
           } else {
-            setCategory(null);
+            setBrand(null);
           }
         } catch (error) {
         }
@@ -44,10 +42,10 @@ const CategoryPage = ({
   return ( 
     <div className="flex-col">
       <div className="container flex-1 space-y-4 p-8 pt-6">
-        <CategoryForm initialData={category} />
+        <BrandForm initialData={brand} />
       </div>
     </div>
   );
 }
 
-export default CategoryPage;
+export default BrandPage;

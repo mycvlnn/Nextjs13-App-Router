@@ -1,6 +1,6 @@
 "use client";
 
-import { Brand } from "@/types";
+import { Blog } from "@/types";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import { type ColumnDef } from "@tanstack/react-table";
 import Link from "next/link";
@@ -17,21 +17,21 @@ import { AlertModal } from "../modals/alert-modal";
 
 const URL = process.env.NEXT_PUBLIC_URL_API;
 
-interface BrandsTableShellProps {
-  data: Brand[];
+interface BlogsTableShellProps {
+  data: Blog[];
   pageCount: number;
 }
 
-export function BrandsTableShell({
+export function BlogsTableShell({
   data,
   pageCount,
-}: BrandsTableShellProps) {
+}: BlogsTableShellProps) {
   const [isPending, startTransition] = React.useTransition();
   const [open, setOpen] = React.useState(false);  
   const [loading, setLoading] = React.useState(false);
-  const [brandId, setBrandId] = React.useState("");
+  const [blogId, setBlogId] = React.useState("");
 
-  const columns = React.useMemo<ColumnDef<Brand, unknown>[]>(
+  const columns = React.useMemo<ColumnDef<Blog, unknown>[]>(
     () => [
       {
         accessorKey: "id",
@@ -65,11 +65,11 @@ export function BrandsTableShell({
         ),
       },
       {
-        accessorKey: "slug",
+        accessorKey: "active",
         header: ({ column }) => (
-          <DataTableColumnHeader column={column} title="Slug"  className="w-[100px]"/>
+          <DataTableColumnHeader column={column} title="Hiển thị"  className="w-[100px]"/>
         ),
-      },
+        },
       {
         id: "actions",
         cell: ({ row }) => (
@@ -86,7 +86,7 @@ export function BrandsTableShell({
             <DropdownMenuContent align="end" className="w-[160px]">
               <DropdownMenuItem asChild>
                 <Link
-                  href={`/admin/brands/${row.original.id}`}
+                  href={`/admin/blogs/${row.original.id}`}
                 >
                   Chỉnh sửa
                 </Link>
@@ -94,7 +94,7 @@ export function BrandsTableShell({
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => {
                 setOpen(true)
-                setBrandId(row.original.id.toString())
+                setBlogId(row.original.id.toString())
               }}>
                 Xóa
                 <DropdownMenuShortcut>⌘⌫</DropdownMenuShortcut>
@@ -111,7 +111,7 @@ export function BrandsTableShell({
     try {
       setLoading(true);
       const session = await getSession();
-      const response = await axios.delete(`${URL}/api/brands/${brandId}`,{
+      const response = await axios.delete(`${URL}/api/blogs/${blogId}`,{
           headers: {
               Authorization: `Bearer ${session?.accessToken}`
           },
@@ -145,7 +145,7 @@ export function BrandsTableShell({
             title: "thương hiệu",
           },
         ]}
-        newRowLink={`/admin/brands/new`}
+        newRowLink={`/admin/blogs/new`}
       />
     </>
   );

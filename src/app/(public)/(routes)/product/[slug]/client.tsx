@@ -1,5 +1,6 @@
 "use client"
 
+import Loading from "@/app/(public)/loading";
 import Gallery from "@/components/client/gallery";
 import ProductList from "@/components/client/info/list";
 import Info from "@/components/client/info/product-detail";
@@ -10,8 +11,8 @@ import { Product } from "@/types";
 import axios from "axios";
 import { Send } from "lucide-react";
 import { useParams, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
-
+import { Suspense, useEffect, useState } from "react";
+  
 interface ProductClientProps {
 }
 
@@ -82,10 +83,12 @@ export const ProductClient: React.FC<ProductClientProps> = ({ }) => {
     return (
         <>
             <div className="lg:grid lg:grid-cols-2 lg:items-start lg:gap-x-8 mb-16">
-            <Gallery images={product?.galleries} />
-            <div className="mt-10 px-4 sm:mt-16 sm:px-0 lg:mt-0">
-                <Info data={product} options={options} newData={newData} />
-            </div>
+            <Suspense fallback={<Loading />}>
+                <Gallery images={product?.galleries} />
+                <div className="mt-10 px-4 sm:mt-16 sm:px-0 lg:mt-0">
+                    <Info data={product} options={options} newData={newData} />
+                </div>
+            </Suspense>
             </div>
             <ProductList title="Sản phẩm liên quan" items={productRelateds}/>
             <br className="my-16" />

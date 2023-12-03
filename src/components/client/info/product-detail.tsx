@@ -1,14 +1,23 @@
 "use client";
 
-import { Heart, Minus, Plus, ShoppingBasket } from "lucide-react";
+import { Heart, Minus, Plus, ShoppingBasket, Star } from "lucide-react";
 
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import { ApiAlert } from "@/components/ui/api-alert";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import useCart from "@/hooks/use-cart";
 import { Product } from "@/types";
 import { RadioGroup } from "@headlessui/react";
-import { usePathname, useSearchParams, useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
-import { Input } from "@/components/ui/input";
+import toast from "react-hot-toast";
+import ProductRelated from "./product-related";
 
 interface InfoProps {
   data: Product | null,
@@ -22,15 +31,22 @@ const Info: React.FC<InfoProps> = ({ data, options, newData }) => {
   const [selectedOptions, setSelectedOptions] = useState<Record<string, string>>({});
   const [isTrustAdd, setIsTrustAdd] = useState(true);
   const [quantity, setQuantity] = useState(1);
-
+ 
   const decreaseQuantity = () => {
-    if (quantity > 0) {
+    if (quantity > 1) {
       setQuantity(quantity - 1);
+    } else if(quantity==1) {
+      toast.error("Số lượng không thể ít hơn 1");
     }
   };
 
   const increaseQuantity = () => {
-    setQuantity(quantity + 1);
+    const newQuantity = quantity + 1;
+    if (newQuantity <= ((newData && Array.isArray(newData) && newData.length > 0 && newData[0].quantity !== undefined) ? (newData[0].quantity - newData[0].sold_quantity) : (data?.quantity || 1))) {
+      setQuantity(newQuantity);
+    } else {
+      toast.error('Số lượng vượt quá giới hạn cho phép');
+    }
   };
   
   const searchParams = useSearchParams();
@@ -73,6 +89,7 @@ const Info: React.FC<InfoProps> = ({ data, options, newData }) => {
 
   useEffect(() => {
     const queryString = createQueryString(selectedOptions);
+    setQuantity(1);
   
     router.push(`${pathname}?${queryString}`, {
       scroll: false,
@@ -103,8 +120,8 @@ const Info: React.FC<InfoProps> = ({ data, options, newData }) => {
       name: data?.name || "",
       price: (newData && Array.isArray(newData) && newData.length > 0 && newData[0].price !== undefined) ? newData[0].price : price || "",
       quantity: quantity,
-      sku_id: newData && newData[0].id || null,
-      property_options: newData && newData[0].property_options || null,
+      sku_id:  (data?.many_version==true) && newData[0].id || null,
+      property_options:  (data?.many_version==true) && newData[0].property_options || null,
     }
     cart.addItem(convertData);
   }
@@ -112,6 +129,7 @@ const Info: React.FC<InfoProps> = ({ data, options, newData }) => {
   return ( 
     <div>
       <h1 className="text-3xl font-bold">{data?.name}</h1>
+      
       <div className="flex pt-2 align-middle text-sm">SKU: <p className="ml-2 text-sm font-semibold">{data?.sku}</p></div>
       <div className="mt-3 flex items-end justify-between">
         <p className="text-2xl">
@@ -122,7 +140,7 @@ const Info: React.FC<InfoProps> = ({ data, options, newData }) => {
       </div>
       <hr className="my-4" />
       <div className="flex flex-col gap-y-6">
-      {data?.many_version && (
+      {data?.many_version ? (
           Object.keys(options).map((key: string, index: number) => (
             <div key={index} className="flex items-center gap-x-4">
               <h3 className="font-semibold">{key}:</h3>
@@ -161,7 +179,7 @@ const Info: React.FC<InfoProps> = ({ data, options, newData }) => {
               </div>
             </div>
           ))
-        )}
+        ):""}
       </div>
       <div className="mt-10 flex items-center gap-x-3">
         <Button
@@ -174,6 +192,7 @@ const Info: React.FC<InfoProps> = ({ data, options, newData }) => {
           className="w-[60px]"
           type="number"
           min="1"
+          max={(newData && Array.isArray(newData) && newData.length > 0 && newData[0].quantity !== undefined)?(newData[0].quantity-newData[0].sold_quantity):data?.quantity}
           value={quantity}
           onChange={(e) => setQuantity(parseInt(e.target.value))}
         />
@@ -195,7 +214,30 @@ const Info: React.FC<InfoProps> = ({ data, options, newData }) => {
           Thêm vào wishlist
         </Button>
       </div>
-      <div dangerouslySetInnerHTML={{ __html: data?.description !== undefined ? data.description : '' }} className="my-8 text-justify"/>
+      <Accordion type="single" collapsible className="mt-4">
+        <AccordionItem value="item-1">
+          <AccordionTrigger><p className="flex items-center text-md"><Star className="w-4 h-4 mr-4"/>Mô tả sản phẩm</p></AccordionTrigger>
+          <AccordionContent>
+            <div dangerouslySetInnerHTML={{ __html: data?.description !== undefined ? data.description : '' }} className="my-8 text-justify"/>
+          </AccordionContent>
+        </AccordionItem>
+        <AccordionItem value="item-2">
+          <AccordionTrigger><p className="flex items-center text-md"><Star className="w-4 h-4 mr-4"/>Thông tin khuyến mãi</p></AccordionTrigger>
+          <AccordionContent>
+            <ApiAlert
+                  variant="public"
+                  title="COUPON"
+                  description={`FRTBLACKFRIDAY`}
+              />
+          </AccordionContent>
+        </AccordionItem>
+        <AccordionItem value="item-3" data-state="open">
+          <AccordionTrigger><p className="flex items-center text-md"><Star className="w-4 h-4 mr-4"/>Gợi ý phụ kiện đi kèm</p></AccordionTrigger>
+          <AccordionContent>
+            <ProductRelated items={ data?.related_products }/>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
     </div>
   );
 }

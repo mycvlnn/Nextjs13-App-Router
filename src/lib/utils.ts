@@ -1,7 +1,6 @@
 import { type ClassValue, clsx } from "clsx"
 import { twMerge } from "tailwind-merge"
-import dayjs from "dayjs"
- 
+
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
@@ -24,10 +23,6 @@ export function isArrayOfFile(files: unknown): files is File[] {
   const isArray = Array.isArray(files);
   if (!isArray) return false;
   return files.every((file) => file instanceof File);
-}
-
-export function formatDate(date: Date | string | number) {
-  return dayjs(date).format("dd/MM/YYYY");
 }
 
 export const jwt = {

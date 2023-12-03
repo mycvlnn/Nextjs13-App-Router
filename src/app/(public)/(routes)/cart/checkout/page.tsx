@@ -3,7 +3,7 @@ import { CheckoutClient } from "./client";
 interface CheckoutPageProps {
 }
 
-const CheckoutPage: React.FC<CheckoutPageProps> = async ({ }) => {
+const CheckoutPage: React.FC<CheckoutPageProps> = ({ }) => {
     return (
       <div className="container">    
         <div className="py-10">

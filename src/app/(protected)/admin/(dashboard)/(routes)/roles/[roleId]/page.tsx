@@ -15,30 +15,32 @@ const SizePage = ({
 }) => {
     const [role, setRole] = useState<Role | null>(null);
 
+  if (params.roleId !== 'new') {
     useEffect(() => {
       const fetchRole = async () => {
-          const session = await getSession();
+        const session = await getSession();
   
-          try {
-              const response = await axios.get(`${URL}/api/roles/${params.roleId}`, {
-                  headers: {
-                      Authorization: `Bearer ${session?.accessToken}`
-                  }
-              });
+        try {
+          const response = await axios.get(`${URL}/api/roles/${params.roleId}`, {
+            headers: {
+              Authorization: `Bearer ${session?.accessToken}`
+            }
+          });
   
-              if (response.status === 200) {
-                const data = response.data;
-                localStorage.setItem('permissions', data.permission.toString());
-                setRole(data.role);
-              } else {
-                setRole(null);
-              }
-          } catch (error) {
+          if (response.status === 200) {
+            const data = response.data;
+            localStorage.setItem('permissions', data.permission.toString());
+            setRole(data.role);
+          } else {
+            setRole(null);
           }
+        } catch (error) {
+        }
       };
   
       fetchRole();
     }, [params]);
+  }
 
   return ( 
     <div className="flex-col">

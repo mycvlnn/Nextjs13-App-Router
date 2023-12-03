@@ -1,13 +1,10 @@
-"use client";
+import { DataTableLoading } from "@/components/common/data-table/data-table-loading";
 
-import { Loader } from "@/components/ui/loader";
-
-const Loading = () => {
-  return ( 
-    <div className="w-full flex-col min-h-full h-screen flex items-center justify-center">
-      <Loader />
-    </div>
-   );
+export default function ProductsLoading() {
+  return (
+    <DataTableLoading
+      columnCount={6}
+      isNewRowCreatable={true}
+    />
+  );
 }
- 
-export default Loading;

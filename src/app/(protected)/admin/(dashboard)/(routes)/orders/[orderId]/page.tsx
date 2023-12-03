@@ -1,27 +1,27 @@
 "use client";
 
-import { Category } from "@/types";
+import { Order } from "@/types";
 import axios from "axios";
 import { getSession } from "next-auth/react";
 import { useEffect, useState } from "react";
-import CategoryForm from "./components/category-form";
+import OrderForm from "./components/order-form";
 
 const URL = process.env.NEXT_PUBLIC_URL_API;
 
-const CategoryPage = ({
+const OrderPage = ({
   params
 }: {
-  params: { categoryId: string }
+  params: { orderId: string }
 }) => {
-  const [category, setCategory] = useState<Category | null>(null);
+  const [order, setOrder] = useState<Order | null>(null);
 
-  if (params.categoryId !== 'new') {
+  if (params.orderId !== 'new') {
     useEffect(() => {
       const fetchRole = async () => {
         const session = await getSession();
   
         try {
-          const response = await axios.get(`${URL}/api/categories/${params.categoryId}`, {
+          const response = await axios.get(`${URL}/api/orders/${params.orderId}`, {
             headers: {
               Authorization: `Bearer ${session?.accessToken}`
             }
@@ -29,9 +29,9 @@ const CategoryPage = ({
   
           if (response.status === 200) {
             const data = response.data;
-            setCategory(data.data);
+            setOrder(data.data);
           } else {
-            setCategory(null);
+            setOrder(null);
           }
         } catch (error) {
         }
@@ -44,10 +44,10 @@ const CategoryPage = ({
   return ( 
     <div className="flex-col">
       <div className="container flex-1 space-y-4 p-8 pt-6">
-        <CategoryForm initialData={category} />
+        <OrderForm initialData={order} />
       </div>
     </div>
   );
 }
 
-export default CategoryPage;
+export default OrderPage;

@@ -1,22 +1,22 @@
-import { Role } from "@/types";
+import { Brand } from "@/types";
 import { Metadata } from "next";
-import { RoleClient } from "./client";
+import { BlogClient } from "./client";
 
-interface RolesPageProps {
+interface BrandsPageProps {
     searchParams: {
       [key: string]: string | string[] | undefined;
     };
 }
   
 export const metadata: Metadata = {
-    title: "Admin | Vai trò",
-    description: "Quản lý vai trò",
+    title: "Admin | Blog",
+    description: "Quản lý blog",
   };
 
-export default async function CategoriesPage({
+export default async function BrandsPage({
     searchParams,
-}: RolesPageProps) {
-    const { page, per_page, sort, name } = searchParams ?? {};
+}: BrandsPageProps) {
+    const { page, per_page, sort, name, keywords } = searchParams ?? {};
     const limit = typeof per_page === "string" ? parseInt(per_page) : 10;
     const offset =
         typeof page === "string"
@@ -27,7 +27,7 @@ export default async function CategoriesPage({
     const [column, order] =
         typeof sort === "string"
         ? (sort.split(".") as [
-            keyof Role | undefined,
+            keyof Brand | undefined,
             "asc" | "desc" | undefined,
             ])
             : [];
@@ -36,14 +36,13 @@ export default async function CategoriesPage({
         order_by: order,
         per_page: limit,
         page: page,
-        keywords: name,
+        keywords: name
     }
-
 
     return (
         <div className="flex-col">
             <div className="container flex-1 space-y-4 p-8 pt-6">
-                <RoleClient params={params}/>
+                <BlogClient params={params}/>
             </div>
         </div>
     );

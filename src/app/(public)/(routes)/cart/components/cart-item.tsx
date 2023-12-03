@@ -45,16 +45,14 @@ const CartItem: React.FC<CartItemProps> = ({
               {data.name}
             </p>
           </div>
+          <div className="text-sm mt-1">
           {data.sku_id && (
-            <div className="text-sm mt-1">
-              {
                 data.property_options.map((option: any, index) => (
                   <p key={index} className="pl-4">{ option.name }</p>
                 ))
-              }
-            </div>
-          )
-          }
+              )
+            }
+          </div>
           <div>
             <span className="text-sm font-medium">Số lượng: {data.quantity}</span>
             <Currency value={data.price}/>

@@ -11,7 +11,9 @@ const Loading = () => {
                     <Skeleton className="rounded-xl aspect-square" />
                     </div>
                 </div>
-                <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4">
+                    <Skeleton className="aspect-square rounded-xl" />
+                    <Skeleton className="aspect-square rounded-xl" />
                     <Skeleton className="aspect-square rounded-xl" />
                     <Skeleton className="aspect-square rounded-xl" />
                     <Skeleton className="aspect-square rounded-xl" />

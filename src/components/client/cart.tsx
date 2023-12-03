@@ -1,6 +1,6 @@
 "use client";
 
-import { LogIn, LogOut, ShoppingBag, User as UserIcon, UserPlus2 } from "lucide-react";
+import { Heart, LogIn, LogOut, ShoppingBag, User as UserIcon, UserPlus2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -42,6 +42,11 @@ const NavbarCarts = () => {
 
 return ( 
     <div className="ml-auto flex items-center gap-x-2">
+    <Button onClick={() => router.push('/wishlist')} variant="outline" size="sm">
+        <Heart
+            className="w-4 h-4"
+        />
+    </Button>
     <Button onClick={() => router.push('/cart')} variant="outline" size="sm">
         <ShoppingBag
             className="w-4 h-4"

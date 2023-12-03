@@ -3,7 +3,6 @@ import { jwt } from "@/lib/utils";
 import { type NextAuthOptions, type User } from "next-auth";
 import type { JWT } from "next-auth/jwt";
 import CredentialsProvider from "next-auth/providers/credentials";
-import Swal from 'sweetalert2'
 
 export const authOptions: NextAuthOptions = {
   pages: {
@@ -38,13 +37,13 @@ export const authOptions: NextAuthOptions = {
             throw response;
           }
 
-          const data: { user: User; access_token: string } = await response.json();
-
+          const data: { user: User; access_token: string; refresh_token: string } = await response.json();
+          
           if (!data?.access_token) {
             throw response;
           }
-
-          return { ...data.user, accessToken: data?.access_token};
+          
+          return { ...data.user, accessToken: data?.access_token, refreshToken: data?.refresh_token};
         } catch (error) {
           if (error instanceof Response) {
             return null;
@@ -92,12 +91,6 @@ export const authOptions: NextAuthOptions = {
     },
     async session({ session, token }) {
       if (token.error) {
-        Swal.fire({
-          title: 'Thông báo!',
-          text: 'Phiên đăng nhập đã hết hạn',
-          icon: 'error',
-          confirmButtonText: 'Đã hiểu'
-        })
         throw new Error("Refresh token has expired");
       }
 
@@ -125,18 +118,18 @@ async function refreshAccessToken(token: JWT) {
     const response = await fetchClient({
       method: "POST",
       url: process.env.NEXT_PUBLIC_URL_API + "/api/auth/refresh",
-      body: token.refreshToken,
+      body: JSON.stringify({refreshToken: token.refreshToken}),
     });
 
     if (!response.ok) throw response;
-    const data: {access_token: string;} = await response.json();
-    const { exp } = jwt.decode(data.access_token);
-
-    return {
-      ...token,
-      accessToken: data.access_token,
-      exp,
-    };
+    const data: { user: User; access_token: string; refresh_token: string } = await response.json();
+    const { exp } = jwt.decode(data?.access_token);
+          
+    if (!data?.access_token) {
+      throw response;
+    }
+    
+    return { ...data.user, accessToken: data?.access_token, refreshToken: data?.refresh_token, exp};
   } catch (error) {
     return {
       ...token,

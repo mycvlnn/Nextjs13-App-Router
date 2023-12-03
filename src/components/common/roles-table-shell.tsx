@@ -1,73 +1,47 @@
 "use client";
 
-import { Brand } from "@/types";
+import { Role } from "@/types";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import { type ColumnDef } from "@tanstack/react-table";
+import axios from "axios";
+import { getSession } from "next-auth/react";
 import Link from "next/link";
 import * as React from "react";
+import toast from "react-hot-toast";
+import { AlertModal } from "../modals/alert-modal";
 import { Button } from "../ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuShortcut, DropdownMenuTrigger } from "../ui/dropdown-menu";
 import { DataTable } from "./data-table/data-table";
 import { DataTableColumnHeader } from "./data-table/data-table-column-header";
-import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
-import { getSession } from "next-auth/react";
-import axios from "axios";
-import toast from "react-hot-toast";
-import { AlertModal } from "../modals/alert-modal";
 
 const URL = process.env.NEXT_PUBLIC_URL_API;
 
-interface BrandsTableShellProps {
-  data: Brand[];
+interface RolesTableShellProps {
+  data: Role[];
   pageCount: number;
 }
 
-export function BrandsTableShell({
+export function RolesTableShell({
   data,
   pageCount,
-}: BrandsTableShellProps) {
+}: RolesTableShellProps) {
   const [isPending, startTransition] = React.useTransition();
+  const [isLoading, setIsLoading] = React.useState(false);
   const [open, setOpen] = React.useState(false);  
-  const [loading, setLoading] = React.useState(false);
-  const [brandId, setBrandId] = React.useState("");
+  const [role, setRole] = React.useState(""); 
 
-  const columns = React.useMemo<ColumnDef<Brand, unknown>[]>(
+  const columns = React.useMemo<ColumnDef<Role, unknown>[]>(
     () => [
       {
         accessorKey: "id",
         header: ({ column }) => (
-            <DataTableColumnHeader column={column} title="#" className="w-[10px]"/>
+            <DataTableColumnHeader column={column} title="#" className="w-[50px]"/>
         ),
-      },
-      {
-        accessorKey: "image",
-        header: ({ column }) => (
-            <DataTableColumnHeader column={column} title="Logo"  className="w-[50px]" />
-        ),
-        cell: ({ row }) => (
-          <Avatar>
-            <AvatarImage src={row.original.image ? row.original.image.path : ""} className="max-w-full w-12 h-12 object-cover rounded-full"/>
-            <AvatarFallback>CN</AvatarFallback>
-          </Avatar>
-        ),
-        enableSorting: false,
       },
       {
         accessorKey: "name",
         header: ({ column }) => (
-          <DataTableColumnHeader column={column} title="Tên thương hiệu"  className="w-[150px]"/>
-        ),
-      },
-      {
-        accessorKey: "description",
-        header: ({ column }) => (
-          <DataTableColumnHeader column={column} title="Mô tả"  className="w-[350px]"/>
-        ),
-      },
-      {
-        accessorKey: "slug",
-        header: ({ column }) => (
-          <DataTableColumnHeader column={column} title="Slug"  className="w-[100px]"/>
+          <DataTableColumnHeader column={column} title="Tên vai trò"  className="w-[550px]"/>
         ),
       },
       {
@@ -86,7 +60,7 @@ export function BrandsTableShell({
             <DropdownMenuContent align="end" className="w-[160px]">
               <DropdownMenuItem asChild>
                 <Link
-                  href={`/admin/brands/${row.original.id}`}
+                  href={`/admin/roles/${row.original.id}`}
                 >
                   Chỉnh sửa
                 </Link>
@@ -94,8 +68,9 @@ export function BrandsTableShell({
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => {
                 setOpen(true)
-                setBrandId(row.original.id.toString())
-              }}>
+                setRole(row.original.id.toString())
+              }}
+              >
                 Xóa
                 <DropdownMenuShortcut>⌘⌫</DropdownMenuShortcut>
               </DropdownMenuItem>
@@ -109,9 +84,9 @@ export function BrandsTableShell({
 
   const onDelete = async () => {
     try {
-      setLoading(true);
+      setIsLoading(true);
       const session = await getSession();
-      const response = await axios.delete(`${URL}/api/brands/${brandId}`,{
+      const response = await axios.delete(`${URL}/api/roles/${role}`,{
           headers: {
               Authorization: `Bearer ${session?.accessToken}`
           },
@@ -123,30 +98,31 @@ export function BrandsTableShell({
     } catch (error) {
         toast.error("Đã xảy ra lỗi");
     } finally {
-        setLoading(false);
+        setIsLoading(false);
         setOpen(false);
     }
 };
 
+
   return (
     <>
-      <AlertModal
+    <AlertModal
         isOpen={open}
         onClose={() => setOpen(false)}
         onConfirm={ onDelete }
-        loading={loading} />
-      <DataTable
-        columns={columns}
-        data={data}
-        pageCount={pageCount}
-        searchableColumns={[
-          {
-            id: "name",
-            title: "thương hiệu",
-          },
-        ]}
-        newRowLink={`/admin/brands/new`}
-      />
+        loading={isLoading} />
+    <DataTable
+      columns={columns}
+      data={data}
+      pageCount={pageCount}
+      searchableColumns={[
+        {
+          id: "name",
+          title: "vai trò",
+        },
+      ]}
+      newRowLink={`/admin/roles/new`}
+    />
     </>
   );
 }

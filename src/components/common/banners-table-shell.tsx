@@ -73,7 +73,7 @@ export function BannersTableShell({
         ),
         cell: ({ row }) => (
           <Avatar>
-            <AvatarImage src={row.original.image} className="max-w-full w-12 h-12 object-cover rounded-full"/>
+            <AvatarImage src={row.original.image ? row.original.image.path : ""} className="max-w-full w-12 h-12 object-cover rounded-full"/>
             <AvatarFallback>CN</AvatarFallback>
           </Avatar>
         ),

@@ -71,10 +71,10 @@ export const Products = ({ product }: { product: Product }) => {
             </CardHeader>
             <CardContent className="grid gap-1 py-4">
                <div className='flex'>
-                  <Badge variant="outline" className="w-min text-xs font-semibold text-neutral-500">
+                  <Badge variant="outline" className="w-auto text-xs font-semibold text-neutral-500">
                      {"#" + product?.brand.name}
                   </Badge>
-                  <Badge variant="outline" className="w-min text-xs ml-1 font-semibold text-neutral-500">
+                  <Badge variant="outline" className="w-auto text-xs ml-1 font-semibold text-neutral-500">
                      {"#" + product?.category.name}
                   </Badge>
                </div>

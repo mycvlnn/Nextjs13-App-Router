@@ -1,36 +1,33 @@
 "use client"
 
-import { OrdersTableShell } from "@/components/common/orders-table-shell";
+import { RolesTableShell } from "@/components/common/roles-table-shell";
 import { Heading } from "@/components/ui/heading";
 import { Separator } from "@/components/ui/separator";
 import axios from "axios";
 import { getSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 
-interface OrderClientProps {
+interface RoleClientProps {
     params: {
         sort_key: any,
         order_by: any,
         per_page: number,
         page: any,
-        keywords: any,
-        status: any,
-        payment_type: any,
-        status_payment: any,
+        keywords: any
     }
 }
 
 const URL = process.env.NEXT_PUBLIC_URL_API;
 
-export const OrderClient: React.FC<OrderClientProps> = ({ params }) => {
-    const [orders, setOrders] = useState([]);
+export const RoleClient: React.FC<RoleClientProps> = ({ params }) => {
+    const [roles, setRoles] = useState([]);
     const [total, setTotal] = useState(0);
 
     useEffect(() => {
-        const fetchOrders = async () => {
+        const fetchRoles = async () => {
             const session = await getSession();
             try {
-                const response = await axios.get(`${URL}/api/orders`, {
+                const response = await axios.get(`${URL}/api/roles`, {
                     params,
                     headers: {
                         Authorization: `Bearer ${session?.accessToken}`,
@@ -39,14 +36,17 @@ export const OrderClient: React.FC<OrderClientProps> = ({ params }) => {
 
                 if (response.status === 200) {
                     const data = response.data;
-                    setOrders(data.data);
+                    setRoles(data.data);
                     setTotal(data.meta.total);
+                } else {
+                    setRoles([]);
+                    setTotal(0);
                 }
             } catch (error) {
             }
         };
 
-        fetchOrders();
+        fetchRoles();
     }, [params]);
 
     const pageCount = Math.ceil(total / params.per_page);
@@ -55,13 +55,13 @@ export const OrderClient: React.FC<OrderClientProps> = ({ params }) => {
         <>
             <div className="flex items-center justify-between">
                 <Heading
-                    title="Danh sách đơn đặt hàng"
-                    description="Quản lý đơn đặt hàng"
+                    title="Danh sách vai trò"
+                    description="Quản lý vai trò"
                 />
             </div>
             <Separator />
-            <OrdersTableShell
-                data={orders}
+            <RolesTableShell
+                data={roles}
                 pageCount={pageCount}
             />
         </>

@@ -65,19 +65,27 @@ export type Category = {
 export type Order = {
     id: string;
     customer_id: string;
-    name: string;
-    customer: Customer[];
+    customer: Customer;
+    children_orders: Order[];
     total: number;
     createdAt: string;
+    paymentAt: string;
     sku_id: string;
     sku: Sku[];
     price: number;
     quantity: number;
     code: string;
-    status: number;
+    status: string;
+    status_code: string;
+    status_payment_code: string;
+    status_payment: string;
+    payment_type: string;
     address: string;
     description: string;
     filename: string;
+    class: string;
+    classType: string;
+    classStatus: string;
 }
 
 export type Brand = {
@@ -90,6 +98,20 @@ export type Brand = {
     };
     name: string;
     description: string;
+    slug: string;
+}
+
+export type Blog = {
+    id: string;
+    image: {
+        id: string;
+        imageable_id: string;
+        path: string;
+        imageable_type: string
+    };
+    name: string;
+    description: string;
+    active: boolean;
     slug: string;
 }
 
@@ -110,6 +132,7 @@ export type Product = {
     price_discount: number;
     trending: boolean;
     galleries: ProductGallery[];
+    related_products: ProductRelated;
     image: {
         id: string;
         imageable_id: string;
@@ -133,6 +156,13 @@ export type Product = {
         quantity: string;
         property_options: PropertyValueType[];
     }[];
+    data: Product;
+}
+
+export type ProductRelated = {
+    parent_product_id: string;
+    child_product_id: string;
+    data: Product;
 }
 
 export type ProductGallery = {

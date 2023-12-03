@@ -2,12 +2,14 @@
 
 import { cn } from '@/lib/utils'
 import Autoplay from 'embla-carousel-autoplay'
+import AutoHeight from 'embla-carousel-auto-height'
 import useEmblaCarousel from 'embla-carousel-react'
 import Image from 'next/image'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 export default function Carousel({ images }: { images: string[] }) {
-   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true }, [Autoplay()])
+   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true }, [Autoplay(
+   )])
 
    const [selectedIndex, setSelectedIndex] = useState(0)
 
