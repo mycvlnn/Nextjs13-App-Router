@@ -12,7 +12,7 @@ import { ApiAlert } from "@/components/ui/api-alert";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import useCart from "@/hooks/use-cart";
-import { Product } from "@/types";
+import { Coupon, Product } from "@/types";
 import { RadioGroup } from "@headlessui/react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
@@ -22,10 +22,11 @@ import ProductRelated from "./product-related";
 interface InfoProps {
   data: Product | null,
   options: any,
-  newData: any
+  newData: any,
+  coupons: any
 };
 
-const Info: React.FC<InfoProps> = ({ data, options, newData }) => {
+const Info: React.FC<InfoProps> = ({ data, options, newData, coupons }) => {
   const cart = useCart();
   const price = data?.many_version ? data?.skus[0].price : data?.price || 0;
   const [selectedOptions, setSelectedOptions] = useState<Record<string, string>>({});
@@ -224,11 +225,28 @@ const Info: React.FC<InfoProps> = ({ data, options, newData }) => {
         <AccordionItem value="item-2">
           <AccordionTrigger><p className="flex items-center text-md"><Star className="w-4 h-4 mr-4"/>Thông tin khuyến mãi</p></AccordionTrigger>
           <AccordionContent>
-            <ApiAlert
-                  variant="public"
-                  title="COUPON"
-                  description={`FRTBLACKFRIDAY`}
-              />
+          {
+              coupons && coupons.map((coupon: Coupon) => {
+                const formattedDate = new Date(coupon.expiredDate);
+                const isValidDate = !isNaN(formattedDate.getTime());
+                const couponDescription = coupon.type === "1"
+                  ? ` | Giảm thẳng ${new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(coupon.value)} vào đơn hàng.`
+                  : `Giảm ngay ${coupon.value}% giá trị tổng đơn hàng.`;
+
+                const expirationMessage = isValidDate
+                  ? ` Đến hết ngày ${formattedDate.toLocaleDateString('vi-VN')}`
+                  : ` - Ngày hết hạn không hợp lệ`;
+
+                return (
+                  <ApiAlert
+                    key={coupon.id}
+                    notice={coupon.expiredDate}
+                    title={coupon.name + couponDescription + expirationMessage}
+                    description={coupon.code}
+                  />
+                );
+              })
+            }
           </AccordionContent>
         </AccordionItem>
         <AccordionItem value="item-3" data-state="open">

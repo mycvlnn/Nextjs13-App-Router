@@ -9,79 +9,58 @@ import {
 } from "@/components/ui/navigation-menu";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
+import { Category } from "@/types";
+import axios from "axios";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import React from "react";
+import React, { useEffect, useState } from "react";
+
+const URL = process.env.NEXT_PUBLIC_URL_API;
 
 export function MainNavClient({
     className,
     ...props
 }: React.HtmlHTMLAttributes<HTMLElement>) {
     const pathname = usePathname();
-    
+    const [categories, setCategories] = useState([]);
+
+    useEffect(() => {
+        const fetchCategories = async () => {
+            try {
+                const response = await axios.get(`${URL}/api/categories/public-store/get-listmenu`);
+
+                if (response.status === 200) {
+                    const data = response.data;
+                    setCategories(data.data);
+                } else {
+                    setCategories([]);
+                }
+            } catch (error) {
+            }
+        };
+
+        fetchCategories();
+    }, []);
+
     return (
         <NavigationMenu>
             <NavigationMenuList>
-                <NavigationMenuItem key="iphone">
-                    <Link href="/category/iphone"
-                        className={cn("text-sm font-medium transition-colors hover:text-primary",
-                                pathname.startsWith(`/category/iphone`) ? 'text-black dark:text-white' : 'text-muted-foreground'
-                        )} legacyBehavior passHref>
-                        <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                        <TooltipProvider>
-                            <p className="h-auto capitalize">Iphone</p>
-                        </TooltipProvider>
-                        </NavigationMenuLink>
-                    </Link>
-                </NavigationMenuItem>
-                <NavigationMenuItem key="ipad">
-                    <Link href="/category/ipad"
-                        className={cn("text-sm font-medium transition-colors hover:text-primary",
-                                pathname.startsWith(`/category/ipad`) ? 'text-black dark:text-white' : 'text-muted-foreground'
-                        )} legacyBehavior passHref>
-                        <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                        <TooltipProvider>
-                            <p className="h-auto capitalize">Ipad</p>
-                        </TooltipProvider>
-                        </NavigationMenuLink>
-                    </Link>
-                </NavigationMenuItem>
-                <NavigationMenuItem key="mac">
-                    <Link href="/category/mac"
-                        className={cn("text-sm font-medium transition-colors hover:text-primary",
-                                pathname.startsWith(`/category/mac`) ? 'text-black dark:text-white' : 'text-muted-foreground'
-                        )} legacyBehavior passHref>
-                        <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                        <TooltipProvider>
-                            <p className="h-auto capitalize">Mac</p>
-                        </TooltipProvider>
-                        </NavigationMenuLink>
-                    </Link>
-                </NavigationMenuItem>
-                <NavigationMenuItem key="apple-watch">
-                    <Link href="/category/apple-watch"
-                        className={cn("text-sm font-medium transition-colors hover:text-primary",
-                                pathname.startsWith(`/category/apple-watch`) ? 'text-black dark:text-white' : 'text-muted-foreground'
-                        )} legacyBehavior passHref>
-                        <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                        <TooltipProvider>
-                            <p className="h-auto capitalize">Apple watch</p>
-                        </TooltipProvider>
-                        </NavigationMenuLink>
-                    </Link>
-                </NavigationMenuItem>
-                <NavigationMenuItem key="phu-kien">
-                    <Link href="/category/phu-kien"
-                        className={cn("text-sm font-medium transition-colors hover:text-primary",
-                                pathname.startsWith(`/category/phu-kien`) ? 'text-black dark:text-white' : 'text-muted-foreground'
-                        )} legacyBehavior passHref>
-                        <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                        <TooltipProvider>
-                            <p className="h-auto capitalize">Phụ kiện</p>
-                        </TooltipProvider>
-                        </NavigationMenuLink>
-                    </Link>
-                </NavigationMenuItem>
+                {
+                    categories && (categories.map((category: Category) => (
+                        <NavigationMenuItem key={category.slug}>
+                            <Link href={`/category/${category.slug}`}
+                                className={cn("text-sm font-medium transition-colors hover:text-primary",
+                                        pathname.startsWith(`/category/${category.slug}`) ? 'text-black dark:text-white' : 'text-muted-foreground'
+                                )} legacyBehavior passHref>
+                                <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                                <TooltipProvider>
+                                        <p className="h-auto capitalize">{category.name}</p>
+                                </TooltipProvider>
+                                </NavigationMenuLink>
+                            </Link>
+                        </NavigationMenuItem>
+                    )))
+                }
                 <NavigationMenuItem key="blog">
                     <Link href="/blog"
                         className={cn("text-sm font-medium transition-colors hover:text-primary",

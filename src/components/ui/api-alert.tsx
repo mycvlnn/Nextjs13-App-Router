@@ -11,23 +11,13 @@ import { useState } from "react";
 interface ApiAlertProps {
     title: string;
     description: string;
-    variant: "public" | "admin";
+    notice: any;
 }
-
-const textMap: Record<ApiAlertProps["variant"], string> = {
-    public: "Public",
-    admin: "Admin",
-};
-
-const variantMap: Record<ApiAlertProps["variant"], BadgeProps["variant"]> = {
-    public: "secondary",
-    admin: "destructive",
-};
 
 export const ApiAlert: React.FC<ApiAlertProps> = ({
     title,
     description,
-    variant = "public",
+    notice,
 }) => {
     const [check, setCheck] = useState(false);
 
@@ -43,9 +33,11 @@ export const ApiAlert: React.FC<ApiAlertProps> = ({
     return (
         <Alert>
             <Ticket className="h-5 w-5" />
-            <AlertTitle className="flex items-center gap-x-2 align-middle">
-                {title}
-                <Badge variant={variantMap[variant]}>{textMap[variant]}</Badge>
+            <AlertTitle className="flex gap-x-2 align-middle leading-2">
+            {title}
+            <Badge className={`flex w-[120px] justify-center text-center rounded-full text-xs px-2 py-1 ${notice && (new Date() > new Date(notice) ? "bg-red-100 text-red-600 hover:bg-red-100/90" : "bg-green-100 text-green-600 hover:bg-green-100/90")}`}>
+                {notice && (new Date() > new Date(notice) ? "Đã hết hạn" : "Đang diễn ra")}
+            </Badge>
             </AlertTitle>
             <AlertDescription className="mt-4 flex items-center justify-between">
                 <code className="relative rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm font-semibold">

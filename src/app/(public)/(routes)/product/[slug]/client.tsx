@@ -21,6 +21,7 @@ const URL = process.env.NEXT_PUBLIC_URL_API;
 export const ProductClient: React.FC<ProductClientProps> = ({ }) => {
     const [product, setProduct] = useState<Product | null>(null);
     const [products, setProducts] = useState([]);
+    const [coupons, setCoupons] = useState([]);
     const [productRelateds, setProductRelateds] = useState([]);
     const [options, setOptions] = useState([]);
     const [newData, setNewData] = useState([]);
@@ -75,9 +76,24 @@ export const ProductClient: React.FC<ProductClientProps> = ({ }) => {
             }
         };
 
+        const fetchCoupons = async () => {
+            try {
+                const response = await axios.get(`${URL}/api/coupons/public-store/get-all-coupon`);
+
+                if (response.status === 200) {
+                    const data = response.data;
+                    setCoupons(data.data);
+                } else {
+                    setCoupons([]);
+                }
+            } catch (error) {
+            }
+        };
+
         fetchProducts();
         fetchProductRealateds();
         fetchBanners();
+        fetchCoupons();
     }, [params]);
 
     return (
@@ -86,7 +102,7 @@ export const ProductClient: React.FC<ProductClientProps> = ({ }) => {
             <Suspense fallback={<Loading />}>
                 <Gallery images={product?.galleries} />
                 <div className="mt-10 px-4 sm:mt-16 sm:px-0 lg:mt-0">
-                    <Info data={product} options={options} newData={newData} />
+                    <Info data={product} options={options} newData={newData} coupons={coupons} />
                 </div>
             </Suspense>
             </div>

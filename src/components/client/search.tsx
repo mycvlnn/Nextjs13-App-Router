@@ -2,26 +2,49 @@
 
 import { Button } from '@/components/ui/button'
 import {
-    CommandDialog,
-    CommandEmpty,
-    CommandGroup,
-    CommandInput,
-    CommandItem,
-    CommandList,
-    CommandSeparator,
+   CommandDialog,
+   CommandEmpty,
+   CommandGroup,
+   CommandInput,
+   CommandItem,
+   CommandList,
+   CommandSeparator,
 } from '@/components/ui/command'
-import { docsConfig } from '@/config/docs'
 import { cn } from '@/lib/utils'
+import { Category } from '@/types'
 import { DialogProps } from '@radix-ui/react-alert-dialog'
-import { Heart, LaptopIcon, MoonIcon, Search, SunIcon } from 'lucide-react'
+import axios from 'axios'
+import { Heart, LaptopIcon, MoonIcon, SunIcon } from 'lucide-react'
 import { useTheme } from 'next-themes'
 import { useRouter } from 'next/navigation'
 import * as React from 'react'
+
+const URL = process.env.NEXT_PUBLIC_URL_API;
 
 export function CommandMenu({ ...props }: DialogProps) {
    const router = useRouter()
    const [open, setOpen] = React.useState(false)
    const { setTheme } = useTheme()
+   const [categories, setCategories] = React.useState([]);
+
+   React.useEffect(() => {
+       const fetchCategories = async () => {
+           try {
+               const response = await axios.get(`${URL}/api/categories/public-store/get-listmenu`);
+
+               if (response.status === 200) {
+                   const data = response.data;
+                   setCategories(data.data);
+               } else {
+                   setCategories([]);
+               }
+           } catch (error) {
+           }
+       };
+
+       fetchCategories();
+   }, []);
+
 
    React.useEffect(() => {
       const down = (e: KeyboardEvent) => {
@@ -58,20 +81,32 @@ export function CommandMenu({ ...props }: DialogProps) {
                <CommandEmpty>Không tìm thấy kết quả nào.</CommandEmpty>
 
                <CommandGroup heading="Đề xuất">
-                  {docsConfig.sidebarNav.map((navItem) => (
+                  {categories.map((navItem: Category) => (
                      <CommandItem
-                        key={navItem.href}
-                        value={navItem.title}
+                        key={navItem.slug}
+                        value={navItem.name}
                         onSelect={() => {
-                           runCommand(() => router.push(navItem.href as string))
+                           runCommand(() => router.push("/category/"+navItem.slug as string))
                         }}
                      >
                         <div className="mr-2 flex h-4 items-center justify-center">
                            <Heart className="h-3" />
                         </div>
-                        {navItem.title}
+                        {navItem.name}
                      </CommandItem>
                   ))}
+                  <CommandItem
+                        key="order"
+                        value="Tra cứu đơn hàng"
+                        onSelect={() => {
+                           runCommand(() => router.push("/order" as string))
+                        }}
+                     >
+                        <div className="mr-2 flex h-4 items-center justify-center">
+                           <Heart className="h-3" />
+                        </div>
+                        Tra cứu đơn hàng
+                     </CommandItem>
                </CommandGroup>
                <CommandSeparator />
                <CommandGroup heading="Giao diện">

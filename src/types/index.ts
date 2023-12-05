@@ -59,6 +59,7 @@ export type Category = {
     name: string;
     description: string;
     active: boolean;
+    home: boolean;
     slug: string;
 }
 
@@ -225,6 +226,18 @@ export type Cart = {
     quantity: number;
     image: string;
     name: string;
-    sku_id: number;
-    property_options: PropertyOption[];
+    sku_id: number | null;
+    property_options: PropertyOption[] | null;
+}
+
+export type Coupon = {
+    id: string;
+    code: string;
+    name: string;
+    description: string;
+    type: string;
+    value: number;
+    expiredDate: Date | undefined;
+    active: boolean;
+    count: number;
 }

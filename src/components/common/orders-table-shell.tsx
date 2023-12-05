@@ -29,7 +29,7 @@ export function OrdersTableShell({
 
   const activeValue = {
     0: "Đang đợi xác nhận",
-    1: "Đã giao cho đơn vị vận chuyển",
+    1: "Xác nhận đơn hàng",
     2: "Đang giao hàng",
     3: "Đã giao hàng",
     4: "Hoàn thành",

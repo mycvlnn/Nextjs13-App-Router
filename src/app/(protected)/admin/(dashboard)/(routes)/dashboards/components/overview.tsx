@@ -1,62 +1,23 @@
 "use client"
 
-import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis } from "recharts"
+import { Bar, BarChart, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts"
 
-const data = [
-  {
-    name: "Thg 1",
-    total: Math.floor(Math.random() * 5000) + 1000,
-  },
-  {
-    name: "Thg 2",
-    total: Math.floor(Math.random() * 5000) + 1000,
-  },
-  {
-    name: "Thg 3",
-    total: Math.floor(Math.random() * 5000) + 1000,
-  },
-  {
-    name: "Thg 4",
-    total: Math.floor(Math.random() * 5000) + 1000,
-  },
-  {
-    name: "Thg 5",
-    total: Math.floor(Math.random() * 5000) + 1000,
-  },
-  {
-    name: "Thg 6",
-    total: Math.floor(Math.random() * 5000) + 1000,
-  },
-  {
-    name: "Thg 7",
-    total: Math.floor(Math.random() * 5000) + 1000,
-  },
-  {
-    name: "Thg 8",
-    total: Math.floor(Math.random() * 5000) + 1000,
-  },
-  {
-    name: "Thg 9",
-    total: Math.floor(Math.random() * 5000) + 1000,
-  },
-  {
-    name: "Thg 10",
-    total: Math.floor(Math.random() * 5000) + 1000,
-  },
-  {
-    name: "Thg 11",
-    total: Math.floor(Math.random() * 5000) + 1000,
-  },
-  {
-    name: "Thg 12",
-    total: Math.floor(Math.random() * 5000) + 1000,
-  },
-]
+interface OverviewProps {
+  data: any[]
+}
 
-export function Overview() {
+export const Overview: React.FC<OverviewProps> = ({ data }) => {
   return (
     <ResponsiveContainer width="100%" height={350}>
-      <BarChart data={data}>
+      <BarChart
+        data={data}
+        margin={{
+          top: 0,
+          right: 20,
+          left: 50,
+          bottom: 0,
+        }}
+      >
         <XAxis
           dataKey="name"
           stroke="#888888"
@@ -69,9 +30,24 @@ export function Overview() {
           fontSize={12}
           tickLine={false}
           axisLine={false}
-          tickFormatter={(value) => `$${value}`}
+          tickFormatter={(value) => `${new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value)}`}
         />
-        <Bar dataKey="total" fill="#020817" radius={[4, 4, 0, 0]} />
+        <Tooltip 
+          content={({ payload }) => {
+            if (payload && payload.length) {
+              const { value, name } = payload[0];
+              const formattedValue = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value);
+              return (
+                <div style={{ backgroundColor: "#fff", padding: "5px 10px", border: "1px solid #ccc" }}>
+                  <p className="text-sm">{`Tổng tiền: ${formattedValue} `}</p>
+                </div>
+              );
+            }
+            return null;
+          }}
+        />
+        <Legend/>
+        <Bar dataKey="Tổng tiền" fill="#020817" radius={[4, 4, 0, 0]} />
       </BarChart>
     </ResponsiveContainer>
   )

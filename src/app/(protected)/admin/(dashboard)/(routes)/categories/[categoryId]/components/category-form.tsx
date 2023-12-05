@@ -40,6 +40,7 @@ const formSchema = z.object({
         message: "Tên là bắt buộc.",
     }),
     active:z.boolean().default(false).optional(),
+    home:z.boolean().default(false).optional(),
     description: z.any(),
 });
 
@@ -59,6 +60,7 @@ const CategoryForm: React.FC<CategoryFormProps> = ({ initialData }) => {
         name: '',
         description: '',
         active: false, 
+        home: false, 
     }
     
     const form = useForm({
@@ -71,6 +73,7 @@ const CategoryForm: React.FC<CategoryFormProps> = ({ initialData }) => {
             form.setValue("name", initialData?.name);
             form.setValue("description", initialData?.description);
             form.setValue("active", initialData?.active);
+            form.setValue("home", initialData?.home);
         }
     }, [initialData]);
 
@@ -203,7 +206,7 @@ const CategoryForm: React.FC<CategoryFormProps> = ({ initialData }) => {
                             )}
                         />
                     </div>
-                    <div className="grid grid-cols-1 gap-8">
+                    <div className="grid grid-cols-2 gap-8">
                     <FormField
                         control={form.control}
                         name="active"
@@ -221,7 +224,30 @@ const CategoryForm: React.FC<CategoryFormProps> = ({ initialData }) => {
                                 Hiển thị
                                 </FormLabel>
                                 <FormDescription>
-                                Danh mục sẽ hiển thị ở trang chủ.
+                                Danh mục sẽ được kích hoạt.
+                                </FormDescription>
+                            </div>
+                            </FormItem>
+                        )}
+                        />
+                        <FormField
+                        control={form.control}
+                        name="home"
+                        render={({ field }) => (
+                            <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                            <FormControl>
+                                <Checkbox
+                                    disabled={loading}
+                                    checked={field.value}
+                                    onCheckedChange={field.onChange}
+                                />
+                            </FormControl>
+                            <div className="space-y-1 leading-none">
+                                <FormLabel>
+                                Menubar
+                                </FormLabel>
+                                <FormDescription>
+                                Danh mục sẽ hiển thị ở menubar trang chủ.
                                 </FormDescription>
                             </div>
                             </FormItem>

@@ -8,10 +8,16 @@ import { Button } from "@/components/ui/button";
 import useCart from "@/hooks/use-cart";
 import { useRouter } from "next/navigation";
 import CartItem from "./cart-item";
+import { UncontrolledFormMessage } from "@/components/ui/form";
 
 const URL = process.env.NEXT_PUBLIC_URL_API;
 
-const Summary = () => {
+interface SummaryCLientProps {
+  discount: any | null,
+  message: string | null
+}
+
+const Summary: React.FC<SummaryCLientProps> = ({ discount, message }) => {
   const searchParams = useSearchParams();
   const items = useCart((state) => state.items);
   const router = useRouter();
@@ -23,6 +29,8 @@ const Summary = () => {
 
   }, [searchParams, removeAll]);
 
+  let totalDiscount = 0;
+
   const totalPrice = items.reduce((total, item) => {
     return total + Number(item.price*item.quantity)
   }, 0);
@@ -31,13 +39,18 @@ const Summary = () => {
     return total + Number(item.quantity)
   }, 0);
 
+  if (discount) {
+    if (discount.type == 0) {
+      totalDiscount = (totalPrice * discount.value)/100;
+    } else {
+      totalDiscount = discount.value;
+    }
+  }
+
+  const totalPrice2 = totalPrice - totalDiscount;
+
   const onCheckout = async () => {
     router.push('/cart/checkout');
-    // const response = await axios.post(`${URL}/checkout`, {
-    //   productIds: items.map((item) => item.id)
-    // });
-
-    // window.location = response.data.url;
   }
 
   return ( 
@@ -50,23 +63,46 @@ const Summary = () => {
       {
         pathname.includes('checkout') && (
           <>
-            {cart.items.length === 0 && <p className="">Không có sản phẩm nào trong giỏ hàng.</p>}
-            <ul>
-                { cart.items.map((item, index) => (
-                  <CartItem key={index} data={item} />
-                ))}
-            </ul>
+            {cart && (
+              cart.items.length === 0 ? <p className="">Không có sản phẩm nào trong giỏ hàng.</p> : (
+                <ul>
+                    { cart.items.map((item, index) => (
+                      <CartItem key={index} data={item} />
+                    ))}
+                </ul>
+              )
+              )}
+              <p className="py-2 text-sm font-medium text-destructive">{ message && message }</p>
           </>
         )
       }
       <div className="mt-6 space-y-4">
-      <div className="flex items-center justify-between pt-2">
-        <div className="text-base font-medium">Số lượng sản phẩm</div>
-          {totalItem}
-        </div>
+          {cart.items.length > 0 && (
+            <div className="flex items-center justify-between pt-2">
+                <div className="text-base font-medium">Số lượng sản phẩm</div>
+                  {totalItem}
+            </div>
+        )}
         <div className="flex items-center justify-between pt-2">
-          <div className="text-base font-medium">Tổng tiền</div>
+          <div className="text-base font-medium">Tạm tính</div>
          <Currency value={totalPrice}/>
+        </div>
+        {
+          discount ? (
+            <div className="flex items-center justify-between pt-2">
+              <div className="text-base font-medium">Giảm giá</div>
+            <Currency value={-totalDiscount}/>
+          </div>
+          ) : (
+            <div className="flex items-center justify-between pt-2">
+              <div className="text-base font-medium">Giảm giá</div>
+            <Currency value={0}/>
+        </div>
+          )
+        }
+        <div className="flex items-center justify-between pt-2">
+          <div className="text-base font-medium">Tổng tiền cần thanh toán</div>
+         <Currency value={totalPrice2}/>
         </div>
       </div>
       {

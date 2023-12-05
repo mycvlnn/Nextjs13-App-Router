@@ -34,7 +34,7 @@ export const CartClient: React.FC<CartClientProps> = ({ }) => {
                             ))}
                         </ul>
                     </div>
-                    <Summary />
+                    <Summary discount={null} message={null}/>
                 </div>
             </div>
         </>

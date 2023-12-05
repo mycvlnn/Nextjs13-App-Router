@@ -1,16 +1,15 @@
 "use client"
 
+import Currency from "@/components/client/currency";
 import { clientSignIn } from "@/components/server/login";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Icons } from "@/components/ui/icon";
-import { Input } from "@/components/ui/input";
+import { Form } from "@/components/ui/form";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { getCookie } from "cookies-next";
 import { Fingerprint, Heart, LayoutList, Trash2, UserCog2 } from "lucide-react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -178,9 +177,56 @@ export default function Page() {
                     </div>
                     </CardHeader>
                     <CardContent className="grid gap-4">
-                    
-                    </CardContent>
-                    <CardFooter>
+                        {/* <Table>
+                          <TableHeader>
+                              <TableRow>
+                                  <TableHead className="w-[50px]">#</TableHead>
+                                  <TableHead className="w-[100px]">Hình ảnh</TableHead>
+                                  <TableHead className="w-[250px]">Tên sản phẩm</TableHead>
+                                  <TableHead className="">Mẫu mã</TableHead>
+                                  <TableHead className="w-[100px] text-right">Đơn giá</TableHead>
+                                  <TableHead className="w-[100px] text-right">Số lượng</TableHead>
+                                  <TableHead className="w-[100px] text-right">Thành tiền</TableHead>
+                              </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                              {initialData?.children_orders.map((child: any, index) => (
+                                  <TableRow key={index}>
+                                      <TableCell className="font-medium">{ index + 1 }</TableCell>
+                                      <TableCell className="text-center">
+                                          <img className="w-12 h-12 object-cover" src={`${child?.product.image.path}`}/>
+                                      </TableCell>
+                                      <TableCell className="text-left">
+                                          {child.product.name}
+                                      </TableCell>
+                                      <TableCell className="text-left">
+                                          {
+                                              child.sku && (
+                                                  child.sku.property_options.map((option: any) => (
+                                                      <>
+                                                          <span key={child.name}>
+                                                              {option.name}
+                                                          </span><br/>
+                                                      </>
+                                                  ))
+                                              )
+                                          }
+                                      </TableCell>
+                                      <TableCell className="text-right">
+                                          {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(child.price)}
+                                      </TableCell>
+                                      <TableCell className="text-right">
+                                          {child.quantity}
+                                      </TableCell>
+                                      <TableCell className="text-right">
+                                          <Currency value={child.quantity * child.price}/>
+                                      </TableCell>
+                                  </TableRow>
+                              ))}
+                          </TableBody>
+                        </Table> */}
+                      </CardContent>
+                      <CardFooter>
                     </CardFooter>
                 </form>
                 </Form>

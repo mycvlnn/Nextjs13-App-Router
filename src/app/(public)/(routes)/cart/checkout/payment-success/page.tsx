@@ -1,11 +1,10 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardHeader, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { CardFooter } from "@/components/ui/card-update";
-import useCart from "@/hooks/use-cart";
 import axios from "axios";
-import { ChevronLeft, PartyPopper, User2, X } from "lucide-react";
+import { ChevronLeft, PartyPopper, X } from "lucide-react";
 import { getSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 
@@ -17,8 +16,6 @@ export default async function SuccessPage({ }) {
     const responsePayment = searchParams.get("vnp_ResponseCode");
     const statusPayment = searchParams.get("vnp_TransactionStatus");
     const txnRef = searchParams.get("vnp_TxnRef");
-    const items = useCart((state) => state.items);
-    const removeAll = useCart((state) => state.removeAll);
     if (responsePayment == "00" || statusPayment == "00") {
         const session = await getSession();
         try {
@@ -28,7 +25,6 @@ export default async function SuccessPage({ }) {
                     Authorization: `Bearer ${session?.accessToken}`,
                 }
             });
-            removeAll();
         } catch (error) {
         }
     } else {

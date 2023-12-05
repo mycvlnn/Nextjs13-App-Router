@@ -228,7 +228,7 @@ const OrderForm: React.FC<OrderFormProps> = ({ initialData }) => {
                                 </div>
                                 <div className="flex-grow pl-4">
                                     <h2 className="font-medium title-font text-sm text-primary py-2 tracking-wider">
-                                    Đã giao cho đơn vị vận chuyển
+                                    Xác nhận đơn hàng
                                     </h2>
                                 </div>
                             </div>
@@ -368,19 +368,19 @@ const OrderForm: React.FC<OrderFormProps> = ({ initialData }) => {
                                         </SelectTrigger>
                                         </FormControl>
                                         <SelectContent>
-                                            <SelectItem key="dangchoxacnhan" value="0">
+                                            <SelectItem key="dangchoxacnhan" value="0" disabled={(initialData && (parseInt(initialData?.status_code) < 1 && parseInt(initialData?.status_code) != -1)) ? false : true}>
                                                 Đang chờ xác nhận
+                                            </SelectItem> 
+                                            <SelectItem key="dagiaochodvvc" value="1" disabled={(initialData && (parseInt(initialData?.status_code) < 2 && parseInt(initialData?.status_code) != -1)) ? false : true}>
+                                                Xác nhận đơn hàng
                                             </SelectItem>
-                                            <SelectItem key="dagiaochodvvc" value="1">
-                                                Đã giao cho đơn vị vận chuyển
-                                            </SelectItem>
-                                            <SelectItem key="danggiaohang" value="2">
+                                            <SelectItem key="danggiaohang" value="2" disabled={(initialData && (parseInt(initialData?.status_code) < 3 && parseInt(initialData?.status_code) != -1)) ? false : true}>
                                                 Đang giao hàng
                                             </SelectItem>
-                                            <SelectItem key="dagiaohang" value="3">
+                                            <SelectItem key="dagiaohang" value="3" disabled={(initialData && (parseInt(initialData?.status_code) < 4 && parseInt(initialData?.status_code) != -1)) ? false : true}>
                                                 Đã giao hàng
                                             </SelectItem>
-                                            <SelectItem key="hoanthanh" value="4">
+                                            <SelectItem key="hoanthanh" value="4" disabled={(initialData && (parseInt(initialData?.status_code) < 5 && parseInt(initialData?.status_code) != -1)) ? false : true}>
                                                 Hoàn thành
                                             </SelectItem>
                                             <SelectItem key="huydon" value="-1">
@@ -425,6 +425,26 @@ const OrderForm: React.FC<OrderFormProps> = ({ initialData }) => {
                                 </FormItem>
                             )}
                         />
+                            </CardContent>
+                        </Card>
+                        <Card className="col-span-12 mt-8">
+                            <CardContent className="pt-6">
+                                <Table>
+                                    <TableBody>
+                                        <TableRow key="total">
+                                            <TableCell className="font-medium">Tạm tính:</TableCell>
+                                            <TableCell className="text-right"><Currency value={initialData?.total2}/></TableCell>
+                                        </TableRow>
+                                        <TableRow key="discount">
+                                            <TableCell className="font-medium">Giảm giá:</TableCell>
+                                            <TableCell className="text-right"><Currency value={-initialData?.discount}/></TableCell>
+                                        </TableRow>
+                                        <TableRow key="finalTotal">
+                                            <TableCell className="font-medium">Số tiền khách phải thanh toán:</TableCell>
+                                            <TableCell className="text-right"><Currency value={initialData?.total}/></TableCell>
+                                        </TableRow>
+                                    </TableBody>
+                                </Table>
                             </CardContent>
                         </Card>
                     </div>

@@ -44,6 +44,12 @@ export function MainNav({
             active: pathname.startsWith(`/admin/orders`),
         },
         {
+            href: `/admin/coupons`,
+            label: 'Phiếu giảm giá',
+            description: 'Quản lý phiếu giảm giá',
+            active: pathname.startsWith(`/admin/coupons`),
+        },
+        {
             href: `/admin/customers`,
             label: 'Khách hàng',
             description: 'Quản lý khách hàng',
