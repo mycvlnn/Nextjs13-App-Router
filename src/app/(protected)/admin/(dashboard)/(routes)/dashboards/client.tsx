@@ -196,7 +196,7 @@ export const DashboardClient: React.FC<DashboardClientProps> = ({ }) => {
                     {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(totalCurrent)}       
                 </div>
                 <p className="text-xs text-muted-foreground">
-                    { percentTotal }% so với tháng trước
+                    { percentTotal > 0 ? "+" + percentTotal : percentTotal }% so với tháng trước
                 </p>
                 </CardContent>
             </Card>
@@ -223,7 +223,7 @@ export const DashboardClient: React.FC<DashboardClientProps> = ({ }) => {
                 <CardContent>
                 <div className="text-2xl font-bold">+{ customerCurrent}</div>
                 <p className="text-xs text-muted-foreground">
-                    { percentCustomer }% so với tháng trước
+                { percentCustomer > 0 ? "+" + percentCustomer : percentCustomer }% so với tháng trước
                 </p>
                 </CardContent>
             </Card>
@@ -248,7 +248,7 @@ export const DashboardClient: React.FC<DashboardClientProps> = ({ }) => {
                 <div className="text-2xl font-bold">{countOrderCurrent}
                 </div>
                 <p className="text-xs text-muted-foreground">
-                    { percentCountOrder }% so với tháng trước
+                { percentCountOrder > 0 ? "+" + percentCountOrder : percentCountOrder }% so với tháng trước
                 </p>
                 </CardContent>
             </Card>
