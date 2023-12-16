@@ -14,6 +14,7 @@ const ProductPage = ({
   params: { productId: string }
 }) => {
   const [product, setProduct] = useState<Product | null>(null);
+  const [hasRole, setHasRole] = useState(true);
 
   if (params.productId !== 'new') {
     useEffect(() => {
@@ -26,10 +27,15 @@ const ProductPage = ({
               Authorization: `Bearer ${session?.accessToken}`
             }
           });
+
+          if (response.status === 403) {
+              setHasRole(false);
+          }
   
           if (response.status === 200) {
             const data = response.data;
             setProduct(data.data);
+            setHasRole(true);
           } else {
             setProduct(null);
           }
@@ -39,6 +45,10 @@ const ProductPage = ({
   
       fetchRole();
     }, [params]);
+  }
+
+  if (!hasRole) {
+    return <div className="container">Bạn không có quyền truy cập chức năng này!</div>
   }
 
   return ( 

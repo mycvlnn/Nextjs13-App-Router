@@ -18,6 +18,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import ProductRelated from "./product-related";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface InfoProps {
   data: Product | null,
@@ -225,28 +226,32 @@ const Info: React.FC<InfoProps> = ({ data, options, newData, coupons }) => {
         <AccordionItem value="item-2">
           <AccordionTrigger><p className="flex items-center text-md"><Star className="w-4 h-4 mr-4"/>Thông tin khuyến mãi</p></AccordionTrigger>
           <AccordionContent>
-          {
-              coupons && coupons.map((coupon: Coupon) => {
-                const formattedDate = new Date(coupon.expiredDate);
-                const isValidDate = !isNaN(formattedDate.getTime());
-                const couponDescription = coupon.type === "1"
-                  ? ` | Giảm thẳng ${new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(coupon.value)} vào đơn hàng.`
-                  : `Giảm ngay ${coupon.value}% giá trị tổng đơn hàng.`;
+            <ScrollArea className="h-72">
+              {
+                coupons && coupons.map((coupon: Coupon) => {
+                  const formattedDate = new Date(coupon.expiredDate);
+                  const isValidDate = !isNaN(formattedDate.getTime());
+                  const couponDescription = coupon.type == "1"
+                    ? `Giảm thẳng ${new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(coupon.value)} vào đơn hàng.`
+                    : `Giảm ngay ${coupon.value}% giá trị tổng đơn hàng.`;
 
-                const expirationMessage = isValidDate
-                  ? ` Đến hết ngày ${formattedDate.toLocaleDateString('vi-VN')}`
-                  : ` - Ngày hết hạn không hợp lệ`;
+                  const expirationMessage = isValidDate
+                    ? ` Đến ngày ${formattedDate.toLocaleDateString('vi-VN')}`
+                    : ` - Ngày hạn không hợp lệ`;
 
-                return (
-                  <ApiAlert
-                    key={coupon.id}
-                    notice={coupon.expiredDate}
-                    title={coupon.name + couponDescription + expirationMessage}
-                    description={coupon.code}
-                  />
-                );
-              })
-            }
+                  return (
+                      <ApiAlert
+                        key={coupon.id}
+                        type={coupon.has_expired}
+                        notice={coupon.expiredDate}
+                        title={coupon.name + " | "+ couponDescription + ((coupon.has_expired)?expirationMessage: "")}
+                        description={coupon.code}
+                        percent={parseFloat(((100/coupon.quantity)*coupon.quantity_used).toFixed(1))}
+                      />
+                      );
+                    })
+                }
+            </ScrollArea>
           </AccordionContent>
         </AccordionItem>
         <AccordionItem value="item-3" data-state="open">

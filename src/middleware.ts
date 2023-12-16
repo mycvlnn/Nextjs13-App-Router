@@ -31,5 +31,5 @@ export default withAuth(
 );
 
 const authRoutes = ["/admin"];
-const guestRoutes = ["/forgot-password", "/sign-in", "/sign-up"];
+const guestRoutes = ["/forgot", "/reset", "/sign-in", "/sign-up"];
 const publicRoutes = ["/", "/category", "/product"];

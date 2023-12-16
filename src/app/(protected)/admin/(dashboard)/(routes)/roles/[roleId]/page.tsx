@@ -13,7 +13,8 @@ const SizePage = ({
 }: {
     params: { roleId: string }
 }) => {
-    const [role, setRole] = useState<Role | null>(null);
+  const [role, setRole] = useState<Role | null>(null);
+  const [hasRole, setHasRole] = useState(true);
 
   if (params.roleId !== 'new') {
     useEffect(() => {
@@ -26,11 +27,16 @@ const SizePage = ({
               Authorization: `Bearer ${session?.accessToken}`
             }
           });
+
+          if (response.status === 403) {
+            setHasRole(false);
+        }
   
           if (response.status === 200) {
             const data = response.data;
             localStorage.setItem('permissions', data.permission.toString());
             setRole(data.role);
+            setHasRole(true);
           } else {
             setRole(null);
           }
@@ -40,6 +46,10 @@ const SizePage = ({
   
       fetchRole();
     }, [params]);
+  }
+
+  if (!hasRole) {
+    return <div className="container">Bạn không có quyền truy cập chức năng này!</div>
   }
 
   return ( 

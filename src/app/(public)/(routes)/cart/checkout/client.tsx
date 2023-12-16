@@ -94,7 +94,8 @@ export const CheckoutClient: React.FC<CheckoutCLientProps> = ({ }) => {
         } catch (error: any) {
             if (error.response.data.statusCode == 400) {
                 if (error.response.data.message) {
-                    setErrorProduct(error.response.data.message)
+                    setErrorProduct(error.response.data.message);
+                    setDiscount(0);
                 }
             }
         } finally {
@@ -129,7 +130,8 @@ export const CheckoutClient: React.FC<CheckoutCLientProps> = ({ }) => {
         } catch (error: any) {
             if (error.response.data.statusCode == 400) {
                 if (error.response.data.message) {
-                    setErrorCode(error.response.data.message)
+                    setErrorCode(error.response.data.message);
+                    setDiscount(0);
                 }
             }
         } finally {
@@ -340,7 +342,7 @@ COD (Thanh toán khi nhận hàng)
                                     </div>
                                 )}
                                 </RadioGroup.Option>
-                                <RadioGroup.Option
+                                {/* <RadioGroup.Option
                                 key="MOMO"
                                 value="2"
                                 disabled
@@ -369,7 +371,7 @@ COD (Thanh toán khi nhận hàng)
                                     )}
                                     </div>
                                 )}
-                                </RadioGroup.Option>
+                                </RadioGroup.Option> */}
                             </RadioGroup>  
                         </div>
                         <div className="grid grid-cols-12 gap-x-6">

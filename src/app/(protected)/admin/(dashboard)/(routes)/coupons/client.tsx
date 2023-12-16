@@ -23,6 +23,7 @@ const URL = process.env.NEXT_PUBLIC_URL_API;
 export const CouponClient: React.FC<CouponClientProps> = ({ params }) => {
     const [coupons, setCoupons] = useState([]);
     const [total, setTotal] = useState(0);
+    const [hasRole, setHasRole] = useState(false);
 
     useEffect(() => {
         const fetchCoupons = async () => {
@@ -35,10 +36,15 @@ export const CouponClient: React.FC<CouponClientProps> = ({ params }) => {
                     }
                 });
 
+                if (response.status === 403) {
+                    setHasRole(false);
+                }
+
                 if (response.status === 200) {
                     const data = response.data;
                     setCoupons(data.data);
                     setTotal(data.meta.total);
+                    setHasRole(true);
                 } else {
                     setCoupons([]);
                     setTotal(0);
@@ -51,6 +57,10 @@ export const CouponClient: React.FC<CouponClientProps> = ({ params }) => {
     }, [params]);
 
     const pageCount = Math.ceil(total / params.per_page);
+
+    if (!hasRole) {
+        return <>Bạn không có quyền truy cập chức năng này!</>
+    }
 
     return (
         <>

@@ -1,18 +1,24 @@
-export type USER = {
+export type User = {
     id: string;
     name: string;
     phone: string;
-    dob: string;
+    dob: Date;
     gender: string;
     provinceId: string;
     districtId: string;
     wardId: string;
     address: string;
     email: string;
+    image: {
+        id: string;
+        imageable_id: string;
+        path: string;
+        imageable_type: string
+    };
     password: string;
     accessToken: string;
     refreshToken: string;
-    active: string
+    active: boolean
 }
 
 export type Customer = {
@@ -37,6 +43,25 @@ export type Customer = {
 export type Role = {
     id: string;
     name: string;
+}
+
+export type Province = {
+    id: string;
+    name: string;
+}
+
+export type District = {
+    id: string;
+    name: string;
+    province_id: string;
+    province: Province;
+}
+
+export type Ward = {
+    id: string;
+    name: string;
+    district_id: string;
+    district: District;
 }
 
 export type Banner = {
@@ -237,7 +262,11 @@ export type Coupon = {
     description: string;
     type: string;
     value: number;
-    expiredDate: Date | undefined;
+    expiredDate: string;
     active: boolean;
-    count: number;
+    quantity: number;
+    quantity_used: number;
+    value_max: number;
+    new_customer: boolean;
+    has_expired: boolean;
 }

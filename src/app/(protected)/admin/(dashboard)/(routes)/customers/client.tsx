@@ -23,6 +23,7 @@ const URL = process.env.NEXT_PUBLIC_URL_API;
 export const CustomerClient: React.FC<CustomerClientProps> = ({ params }) => {
     const [customers, setCustomers] = useState([]);
     const [total, setTotal] = useState(0);
+    const [hasRole, setHasRole] = useState(false);
 
     useEffect(() => {
         const fetchBanners = async () => {
@@ -35,10 +36,15 @@ export const CustomerClient: React.FC<CustomerClientProps> = ({ params }) => {
                     }
                 });
 
+                if (response.status === 403) {
+                    setHasRole(false);
+                }
+
                 if (response.status === 200) {
                     const data = response.data;
                     setCustomers(data.data);
                     setTotal(data.meta.total);
+                    setHasRole(true);
                 } else {
                     setCustomers([]);
                     setTotal(0);
@@ -51,6 +57,10 @@ export const CustomerClient: React.FC<CustomerClientProps> = ({ params }) => {
     }, [params]);
 
     const pageCount = Math.ceil(total / params.per_page);
+
+    if (!hasRole) {
+        return <>Bạn không có quyền truy cập chức năng này!</>
+    }
 
     return (
         <>

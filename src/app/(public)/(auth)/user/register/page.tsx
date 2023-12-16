@@ -72,7 +72,6 @@ export default function Page() {
                     'Content-Type': 'application/json',
                 },
             });
-            console.log(response);
             if (response.data.statusCode == 200) {
                 toast.success(response.data.message);
                 router.push('/user/login');

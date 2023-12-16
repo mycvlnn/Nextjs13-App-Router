@@ -27,6 +27,7 @@ export const ProductClient: React.FC<ProductClientProps> = ({ params }) => {
   const [brands, setBrands] = useState([]);
   const [categories, setCategories] = useState([]);
   const [total, setTotal] = useState(0);
+  const [hasRole, setHasRole] = useState(true);
 
   useEffect(() => {
       const fetchProducts = async () => {
@@ -38,11 +39,16 @@ export const ProductClient: React.FC<ProductClientProps> = ({ params }) => {
                     Authorization: `Bearer ${session?.accessToken}`,
                 }
             });
+          
+            if (response.status === 403) {
+                setHasRole(false);
+            }
 
             if (response.status === 200) {
                 const data = response.data;
                 setProducts(data.data);
                 setTotal(data.meta.total);
+                setHasRole(true);
             } else {
                 setProducts([]);
                 setTotal(0);
@@ -91,11 +97,14 @@ export const ProductClient: React.FC<ProductClientProps> = ({ params }) => {
     
       fetchBrand();
       fetchCategory();
-
       fetchProducts();
   }, [params]);
 
   const pageCount = Math.ceil(total / params.per_page);
+
+  if (!hasRole) {
+    return <>Bạn không có quyền truy cập chức năng này!</>
+  }
 
   return (
       <>

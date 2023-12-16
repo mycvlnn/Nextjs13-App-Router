@@ -41,7 +41,6 @@ export default async function CategoriesPage({
         active: status
     }
 
-
     return (
         <div className="flex-col">
             <div className="container flex-1 space-y-4 p-8 pt-6">

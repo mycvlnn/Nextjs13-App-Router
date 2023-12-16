@@ -10,7 +10,7 @@ export const authOptions: NextAuthOptions = {
   },
   session: {
     strategy: "jwt",
-    maxAge: parseInt(process.env.NEXTAUTH_JWT_AGE!) * 60 || 10800*60,
+    maxAge: 7*24*60*60,
   },
   providers: [
     CredentialsProvider({
@@ -122,14 +122,15 @@ async function refreshAccessToken(token: JWT) {
     });
 
     if (!response.ok) throw response;
-    const data: { user: User; access_token: string; refresh_token: string } = await response.json();
-    const { exp } = jwt.decode(data?.access_token);
-          
-    if (!data?.access_token) {
-      throw response;
-    }
-    
-    return { ...data.user, accessToken: data?.access_token, refreshToken: data?.refresh_token, exp};
+    const refreshedAccessToken: { access_token: string; refresh_token: string } = await response.json();
+    const { exp } = jwt.decode(refreshedAccessToken.access_token);
+
+    return {
+      ...token,
+      accessToken: refreshedAccessToken.access_token,
+      refreshToken: refreshedAccessToken.refresh_token,
+      exp,
+    };
   } catch (error) {
     return {
       ...token,

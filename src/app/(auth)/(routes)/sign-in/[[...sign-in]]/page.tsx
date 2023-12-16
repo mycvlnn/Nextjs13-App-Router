@@ -7,6 +7,7 @@ import { Icons } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { getSession, signIn } from "next-auth/react";
+import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -128,6 +129,7 @@ export default function Page() {
                   )}
                 />
               </div>
+            <Link href="/forgot" className="text-sm text-cyan-500 underline underline-offset-2">Quên mật khẩu?</Link>
             </CardContent>
             <CardFooter>
               <Button

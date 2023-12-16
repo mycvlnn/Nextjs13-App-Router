@@ -14,6 +14,7 @@ const CustomerPage = ({
   params: { customerId: string }
 }) => {
   const [customer, setCustomer] = useState<Customer | null>(null);
+  const [hasRole, setHasRole] = useState(true);
 
   if (params.customerId !== 'new') {
     useEffect(() => {
@@ -26,10 +27,15 @@ const CustomerPage = ({
               Authorization: `Bearer ${session?.accessToken}`
             }
           });
+
+          if (response.status === 403) {
+            setHasRole(false);
+        }
   
           if (response.status === 200) {
             const data = response.data;
             setCustomer(data.data);
+            setHasRole(true);
           } else {
             setCustomer(null);
           }
@@ -39,6 +45,10 @@ const CustomerPage = ({
   
       fetchRole();
     }, [params]);
+  }
+
+  if (!hasRole) {
+    return <div className="container">Bạn không có quyền truy cập chức năng này!</div>
   }
 
   return ( 

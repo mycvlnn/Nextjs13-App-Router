@@ -56,7 +56,6 @@ export function CouponsTableShell({
     0: "Ẩn",
     1: "Hiển thị"
   }
-  console.log(data);
 
   const columns = React.useMemo<ColumnDef<Coupon, unknown>[]>(
     () => [
@@ -67,7 +66,10 @@ export function CouponsTableShell({
             ),
         cell: ({ row }) => (
             <>
-                <span className="font-semibold">#{ row.original.code }</span>
+            <span className="font-semibold">#{row.original.code}</span>
+              {
+              (row.original.has_expired) ? (
+                
                 <span className={`w-[120px] text-xs px-2 py-1 ml-1 rounded-lg text-center ${ 
                   row.original.expiredDate 
                       ? (new Date(row.original.expiredDate).toString() !== 'Invalid Date'
@@ -83,6 +85,10 @@ export function CouponsTableShell({
                           : "Không có ngày hết hạn"
                   }
               </span>
+                ) : <span className={`w-[120px] text-xs px-2 py-1 ml-1 rounded-lg text-center bg-green-100 text-green-600`}>
+                  Đang diễn ra
+              </span>
+              }
             </>
         )
       },
@@ -97,9 +103,14 @@ export function CouponsTableShell({
         header: ({ column }) => (
             <DataTableColumnHeader column={column} title="Ngày hết hạn"  className="w-[100px]"/>
         ),
+        cell: ({ row }) => (
+          <>
+            <span>{(row.original.has_expired)?row.original.expiredDate:"Không có thời hạn"}</span>
+          </>
+        )
        },
         {
-            accessorKey: "count",
+            accessorKey: "quantity",
             header: ({ column }) => (
                 <DataTableColumnHeader column={column} title="Số lượng còn lại"  className="w-[100px]"/>
         ),

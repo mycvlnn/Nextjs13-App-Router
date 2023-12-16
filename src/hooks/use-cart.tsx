@@ -28,7 +28,7 @@ const useCart = create(
       const updatedItems = [...currentItems];
       updatedItems[existingProductIndex].quantity += data.quantity;
       set({ items: updatedItems });
-      toast.success('Sản phẩm đã được thêm vào giỏ hàng');
+      toast.success('Thêm vào giỏ hàng thành công');
     } else {
       set({ items: [...get().items, data] });
       toast.success('Thêm vào giỏ hàng thành công');

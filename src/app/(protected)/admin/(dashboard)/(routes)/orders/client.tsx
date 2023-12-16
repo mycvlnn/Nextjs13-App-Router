@@ -25,6 +25,7 @@ const URL = process.env.NEXT_PUBLIC_URL_API;
 export const OrderClient: React.FC<OrderClientProps> = ({ params }) => {
     const [orders, setOrders] = useState([]);
     const [total, setTotal] = useState(0);
+    const [hasRole, setHasRole] = useState(false);
 
     useEffect(() => {
         const fetchOrders = async () => {
@@ -37,10 +38,15 @@ export const OrderClient: React.FC<OrderClientProps> = ({ params }) => {
                     }
                 });
 
+                if (response.status === 403) {
+                    setHasRole(false);
+                }
+
                 if (response.status === 200) {
                     const data = response.data;
                     setOrders(data.data);
                     setTotal(data.meta.total);
+                    setHasRole(true);
                 }
             } catch (error) {
             }
@@ -50,6 +56,10 @@ export const OrderClient: React.FC<OrderClientProps> = ({ params }) => {
     }, [params]);
 
     const pageCount = Math.ceil(total / params.per_page);
+
+    if (!hasRole) {
+        return <>Bạn không có quyền truy cập chức năng này!</>
+    }
 
     return (
         <>

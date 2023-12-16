@@ -13,11 +13,13 @@ import {
     DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
 import { Separator } from "@/components/ui/separator";
-import { Property } from "@/types";
+import { Brand, Product, Property } from "@/types";
 import axios from "axios";
-import { ArrowDown01, ArrowDownAZ, ArrowUp01, ArrowUpAZ, FilterIcon } from "lucide-react";
-import { useParams, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { ArrowDown01, ArrowDownAZ, ArrowUp01, ArrowUpAZ, FilterIcon, X } from "lucide-react";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
+import qs from "query-string";
+import useSWR from "swr";
+import useSWRImmutable from "swr/immutable";
 import Filter from "./components/filters";
   
 interface ProductClientProps {
@@ -26,67 +28,70 @@ interface ProductClientProps {
 const URL = process.env.NEXT_PUBLIC_URL_API;
 
 export const ProductClient: React.FC<ProductClientProps> = ({ }) => {
-    const [products, setProducts] = useState([]);
-    const [options, setOptions] = useState([]);
-    const [brands, setBrands] = useState([]);
     const params = useParams();
     const searchParams = useSearchParams();
+    const router = useRouter();
 
-    useEffect(() => {
-        const fetchProducts = async () => {
-            try {
-                const response = await axios.get(`${URL}/api/products/public-store/${params.slug}/categories`);
+    const { data: options } = useSWRImmutable<Property[] | null>([`${URL}/api/products/new-product/get-option`],
+        (url: string) =>
+        axios
+            .get(url)
+            .then((res) => res.data.data)
+    );
+    const { data: brands } = useSWRImmutable<Brand | null>([`${URL}/api/products/new-product/get-brand`],
+        (url: string) =>
+        axios
+            .get(url)
+            .then((res) => res.data.data)
+    );
+    const { data: products } = useSWR<Product[] | null>(
+        () => `${URL}/api/products/public-store/${params.slug}/categories?${new URLSearchParams(searchParams).toString()}`,
+        (url: string) =>
+          axios
+            .get(url)
+            .then((res) => res.data.data)
+    );
 
-                if (response.status === 200) {
-                    const data = response.data;
-                    setProducts(data.data);
-                } else {
-                    setProducts([]);
-                }
-            } catch (error) {
-            }
+    const onClick = (valueKey: string, id: string) => {
+        const current = qs.parse(searchParams.toString());
+    
+        const query = {
+          ...current,
+          [valueKey]: id
         };
-        const fetchOptions = async () => {
-            try {
-                const response = await axios.get(`${URL}/api/products/new-product/get-option`);
-
-                if (response.status === 200) {
-                    const data = response.data;
-                    setOptions(data.data);
-                } else {
-                    setOptions([]);
-                }
-            } catch (error) {
-            }
-        };
-        const fetchBrands = async () => {
-            try {
-                const response = await axios.get(`${URL}/api/products/new-product/get-brand`);
-
-                if (response.status === 200) {
-                    const data = response.data;
-                    setBrands(data.data);
-                } else {
-                    setBrands([]);
-                }
-            } catch (error) {
-            }
-        };
-
-        fetchOptions();
-        fetchBrands();
-        fetchProducts();
-    }, [params]);
+    
+        if (current[valueKey] === id) {
+          query[valueKey] = null;
+        }
+    
+        const url = qs.stringifyUrl({
+          url: window.location.href,
+          query,
+        }, { skipNull: true });
+    
+        router.push(url);
+    }
+    
+    const clearFilter = (valueKey: string) => {
+        const currentSearchParams = new URLSearchParams(searchParams.toString());
+        currentSearchParams.delete(valueKey);
+      
+        const newSearchParams = currentSearchParams.toString();
+      
+        const url = `${window.location.pathname}?${newSearchParams}`;
+      
+        router.push(url);
+      };
 
     return (
         <>
             <h2 className="text-3xl font-bold">Danh sách sản phẩm tìm thấy</h2>
             <div className="flex justify-between items-center pb-4 pt-2">
-                <h3 className="text-md">Có {products.length} sản phẩm được tìm thấy.</h3>
+                <h3 className="text-md">Có {products && products.length} sản phẩm được tìm thấy.</h3>
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                     <Button size="icon" variant="outline">
-                                    <FilterIcon className="w-4 h-4"/>
+                        <FilterIcon className="w-4 h-4"/>
                     </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent className="w-56" align="end" forceMount>
@@ -96,19 +101,23 @@ export const ProductClient: React.FC<ProductClientProps> = ({ }) => {
                         </div>
                         </DropdownMenuLabel>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => clearFilter('sort')}>
+                            Xóa bộ lọc
+                        <DropdownMenuShortcut><X className="w-4 h-4"/></DropdownMenuShortcut>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => onClick('sort', 'name.asc')}>
                             Tên từ A-Z
                         <DropdownMenuShortcut><ArrowDownAZ className="w-4 h-4"/></DropdownMenuShortcut>
                         </DropdownMenuItem>
-                        <DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => onClick('sort', 'name.desc')}>
                             Tên từ Z-A
                         <DropdownMenuShortcut><ArrowUpAZ className="w-4 h-4"/></DropdownMenuShortcut>
                         </DropdownMenuItem>
-                        <DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => onClick('sort', 'price.asc')}>
                             Giá tiền từ thấp đến cao
                         <DropdownMenuShortcut><ArrowDown01 className="w-4 h-4"/></DropdownMenuShortcut>
                         </DropdownMenuItem>
-                        <DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => onClick('sort', 'price.desc')}>
                             Giá tiền từ cao đến thấp
                         <DropdownMenuShortcut><ArrowUp01 className="w-4 h-4"/></DropdownMenuShortcut>
                         </DropdownMenuItem>
@@ -137,9 +146,9 @@ export const ProductClient: React.FC<ProductClientProps> = ({ }) => {
                         )}
                     </div>
                     <div className="mt-6 lg:col-span-4 lg:mt-0">
-                    {products.length === 0 && <NoResults />}
+                    {products?.length==0 && <NoResults />}
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-                            {products.map((item, index) => (
+                            {products && products.map((item, index) => (
                             <ProductCard key={index} data={item} />
                             ))}
                         </div>

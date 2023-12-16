@@ -14,6 +14,7 @@ const CategoryPage = ({
   params: { propertyId: string }
 }) => {
   const [property, setProperty] = useState<Property | null>(null);
+  const [hasRole, setHasRole] = useState(true);
 
   if (params.propertyId !== 'new') {
     useEffect(() => {
@@ -26,6 +27,10 @@ const CategoryPage = ({
               Authorization: `Bearer ${session?.accessToken}`
             }
           });
+
+          if (response.status === 403) {
+              setHasRole(false);
+          }
   
           if (response.status === 200) {
             const data = response.data;
@@ -39,6 +44,10 @@ const CategoryPage = ({
   
       fetchRole();
     }, [params]);
+  }
+
+  if (!hasRole) {
+    return <div className="container">Bạn không có quyền truy cập chức năng này!</div>
   }
 
   return ( 

@@ -12,6 +12,7 @@ const URL = process.env.NEXT_PUBLIC_URL_API;
 const BrandPage = () => {
   const params = useParams();
   const [brand, setBrand] = useState<Brand | null>(null);
+  const [hasRole, setHasRole] = useState(true);
 
   if (params.brandId !== 'new') {
     useEffect(() => {
@@ -24,10 +25,15 @@ const BrandPage = () => {
               Authorization: `Bearer ${session?.accessToken}`
             }
           });
+
+          if (response.status === 403) {
+            setHasRole(false);
+        }
   
           if (response.status === 200) {
             const data = response.data;
             setBrand(data.data);
+            setHasRole(true);
           } else {
             setBrand(null);
           }
@@ -37,6 +43,10 @@ const BrandPage = () => {
   
       fetchRole();
     }, [params]);
+  }
+
+  if (!hasRole) {
+    return <div className="container">Bạn không có quyền truy cập chức năng này!</div>
   }
 
   return ( 

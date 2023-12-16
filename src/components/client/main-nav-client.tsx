@@ -1,11 +1,11 @@
 "use client";
 
 import {
-    NavigationMenu,
-    NavigationMenuItem,
-    NavigationMenuLink,
-    NavigationMenuList,
-    navigationMenuTriggerStyle
+  NavigationMenu,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  navigationMenuTriggerStyle
 } from "@/components/ui/navigation-menu";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
@@ -13,7 +13,8 @@ import { Category } from "@/types";
 import axios from "axios";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import React, { useEffect, useState } from "react";
+import React from "react";
+import useSWRImmutable from "swr/immutable";
 
 const URL = process.env.NEXT_PUBLIC_URL_API;
 
@@ -22,25 +23,12 @@ export function MainNavClient({
     ...props
 }: React.HtmlHTMLAttributes<HTMLElement>) {
     const pathname = usePathname();
-    const [categories, setCategories] = useState([]);
-
-    useEffect(() => {
-        const fetchCategories = async () => {
-            try {
-                const response = await axios.get(`${URL}/api/categories/public-store/get-listmenu`);
-
-                if (response.status === 200) {
-                    const data = response.data;
-                    setCategories(data.data);
-                } else {
-                    setCategories([]);
-                }
-            } catch (error) {
-            }
-        };
-
-        fetchCategories();
-    }, []);
+    const { data: categories } = useSWRImmutable<Category | null>([`${URL}/api/categories/public-store/get-listmenu`],
+          (url: string) =>
+          axios
+              .get(url)
+              .then((res) => res.data.data)
+      );
 
     return (
         <NavigationMenu>

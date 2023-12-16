@@ -41,13 +41,13 @@ const Summary: React.FC<SummaryCLientProps> = ({ discount, message }) => {
 
   if (discount) {
     if (discount.type == 0) {
-      totalDiscount = (totalPrice * discount.value)/100;
+      totalDiscount = ((totalPrice * discount.value) / 100)>discount.value_max ? discount.value_max : (totalPrice * discount.value) / 100;
     } else {
       totalDiscount = discount.value;
     }
   }
 
-  const totalPrice2 = totalPrice - totalDiscount;
+  const totalPrice2 = (totalPrice - totalDiscount < 0) ? 0 : totalPrice - totalDiscount ;
 
   const onCheckout = async () => {
     router.push('/cart/checkout');

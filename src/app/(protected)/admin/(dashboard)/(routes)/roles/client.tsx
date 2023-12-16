@@ -22,6 +22,7 @@ const URL = process.env.NEXT_PUBLIC_URL_API;
 export const RoleClient: React.FC<RoleClientProps> = ({ params }) => {
     const [roles, setRoles] = useState([]);
     const [total, setTotal] = useState(0);
+    const [hasRole2, setHasRole2] = useState(false);
 
     useEffect(() => {
         const fetchRoles = async () => {
@@ -34,10 +35,15 @@ export const RoleClient: React.FC<RoleClientProps> = ({ params }) => {
                     }
                 });
 
+                if (response.status === 403) {
+                    setHasRole2(false);
+                }
+
                 if (response.status === 200) {
                     const data = response.data;
                     setRoles(data.data);
                     setTotal(data.meta.total);
+                    setHasRole2(true);
                 } else {
                     setRoles([]);
                     setTotal(0);
@@ -50,6 +56,10 @@ export const RoleClient: React.FC<RoleClientProps> = ({ params }) => {
     }, [params]);
 
     const pageCount = Math.ceil(total / params.per_page);
+
+    if (!hasRole2) {
+        return <>Bạn không có quyền truy cập chức năng này!</>
+    }
 
     return (
         <>

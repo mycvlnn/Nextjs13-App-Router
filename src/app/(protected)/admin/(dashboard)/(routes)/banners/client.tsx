@@ -23,6 +23,7 @@ const URL = process.env.NEXT_PUBLIC_URL_API;
 export const BannerClient: React.FC<BannerClientProps> = ({ params }) => {
     const [banners, setBanners] = useState([]);
     const [total, setTotal] = useState(0);
+    const [hasRole, setHasRole] = useState(false);
 
     useEffect(() => {
         const fetchBanners = async () => {
@@ -35,10 +36,15 @@ export const BannerClient: React.FC<BannerClientProps> = ({ params }) => {
                     }
                 });
 
+                if (response.status === 403) {
+                    setHasRole(false);
+                }
+
                 if (response.status === 200) {
                     const data = response.data;
                     setBanners(data.data);
                     setTotal(data.meta.total);
+                    setHasRole(true);
                 } else {
                     setBanners([]);
                     setTotal(0);
@@ -51,6 +57,10 @@ export const BannerClient: React.FC<BannerClientProps> = ({ params }) => {
     }, [params]);
 
     const pageCount = Math.ceil(total / params.per_page);
+
+    if (!hasRole) {
+    return <>Bạn không có quyền truy cập chức năng này!</>
+    }
 
     return (
         <>

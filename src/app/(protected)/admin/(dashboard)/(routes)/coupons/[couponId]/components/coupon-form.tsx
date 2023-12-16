@@ -49,28 +49,32 @@ const formSchema = z.object({
     }),
     name: z.string().min(1, {
         message: "Tên là bắt buộc.",
-    }).max(60, {
-        message: "Mô tả tối đa 60 ký tự.",
+    }).max(191, {
+        message: "Mô tả tối đa 191 ký tự.",
     }),
-    count: z.any(),
+    quantity: z.any(),
     type: z.string().min(1, {
         message: "Vui lòng chọn loại giảm giá",
     }),
     value: z.any(),
+    value_max: z.any(),
     expiredDate: z.date(),
     description: z.any(),
     active: z.boolean(),
+    new_customer: z.boolean(),
+    has_expired: z.boolean(),
 });
 
 const CouponForm: React.FC<CouponFormProps> = ({ initialData }) => {
-    const params = useParams();
-    const router = useRouter();
-
-    const [open, setOpen] = useState(false);    
-    const [loading, setLoading] = useState(false);
-    const [errorCode, setErrorCode] = useState('');
+    const params                      = useParams();
+    const router                      = useRouter();
+    const [open, setOpen]             = useState(false);    
+    const [loading, setLoading]       = useState(false);
+    const [errorCode, setErrorCode]   = useState('');
     const [errorValue, setErrorValue] = useState('');
-    const [max, setMax] = useState(100);
+    const [max, setMax]               = useState(100);
+    const [hasExpired, setHasExpired] = useState(true);
+    const [isPercent, setIsPercent] = useState(false);
     
     const title        = "Quản lý mã giảm giá";
     const description  = initialData ? "Cập nhật mã giảm giá" : "Thêm mới mã giảm giá";
@@ -80,12 +84,15 @@ const CouponForm: React.FC<CouponFormProps> = ({ initialData }) => {
     const defaultValues = {
         name: '',
         code: '',
-        count: '',
+        quantity: '',
         type: '',
         value: '',
+        value_max: '',
         expiredDate: new Date(),
         description: '',
         active: false,
+        new_customer: false,
+        has_expired: true,
     }
     
     const form = useForm({
@@ -97,12 +104,16 @@ const CouponForm: React.FC<CouponFormProps> = ({ initialData }) => {
         if (initialData) {
             form.setValue("name", initialData?.name);
             form.setValue("active", initialData?.active);
-            form.setValue("value", initialData?.value);
-            form.setValue("count", initialData?.count);
+            form.setValue("value", initialData?.value.toString());
+            form.setValue("value_max", initialData?.value_max.toString());
+            form.setValue("has_expired", initialData?.has_expired);
+            form.setValue("new_customer", initialData?.new_customer);
+            form.setValue("quantity", (initialData?.quantity-initialData?.quantity_used).toString());
             form.setValue("type", initialData?.type);
             form.setValue("code", initialData?.code);
             form.setValue("expiredDate", new Date(initialData?.expiredDate));
             form.setValue("description", initialData?.description);
+            setHasExpired(initialData?.has_expired);
         }
     }, [initialData]);
 
@@ -204,7 +215,7 @@ const CouponForm: React.FC<CouponFormProps> = ({ initialData }) => {
                 <form 
                     onSubmit={form.handleSubmit(onSubmit)}
                     className="space-y-8 w-full">
-                    <div className="grid grid-cols-2 gap-8">
+                    <div className="grid grid-cols-1 gap-8">
                         <FormField
                             control={form.control}
                             name="name"
@@ -223,6 +234,8 @@ const CouponForm: React.FC<CouponFormProps> = ({ initialData }) => {
                                 </FormItem>
                             )}
                         />
+                    </div>
+                    <div className="grid grid-cols-1 gap-8">
                         <FormField
                             control={form.control}
                             name="code"
@@ -242,48 +255,83 @@ const CouponForm: React.FC<CouponFormProps> = ({ initialData }) => {
                             )}
                         />
                     </div>
-                    <div className="grid grid-cols-2 gap-8">
+                    <div className="grid grid-cols-1 gap-8">
                         <FormField
-                            control={form.control}
-                            name="expiredDate"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Ngày hết hạn</FormLabel>
-                                    <FormControl>
-                                    <Popover>
-                                        <PopoverTrigger asChild>
-                                        <FormControl>
-                                            <Button
-                                            variant={"outline"}
-                                            className={cn(
-                                                "w-full pl-3 text-left font-normal",
-                                                !field.value && "text-muted-foreground"
-                                            )}
-                                            >
-                                            {field.value ? (
-                                                format(field.value, "dd/MM/yyyy")
-                                            ) : (
-                                                <span>Chọn ngày</span>
-                                            )}
-                                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                                            </Button>
-                                        </FormControl>
-                                        </PopoverTrigger>
-                                        <PopoverContent className="w-auto p-0" align="start">
-                                        <Calendar
-                                            mode="single"
-                                            selected={field.value}
-                                            onSelect={field.onChange}
-                                            disabled={loading || ((date) => date < new Date())}
-                                            initialFocus
-                                        />
-                                        </PopoverContent>
-                                    </Popover>
-                                    </FormControl>
-                                    <FormMessage/>
-                                </FormItem>
-                            )}
+                        control={form.control}
+                        name="has_expired"
+                        render={({ field }) => (
+                            <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                            <FormControl>
+                                <Checkbox
+                                    disabled={loading}
+                                    checked={field.value}
+                                    onCheckedChange={(isChecked: boolean) => {
+                                        field.onChange(isChecked);
+                                        setHasExpired(isChecked);
+                                    }}
+                                />
+                            </FormControl>
+                            <div className="space-y-1 leading-none w-full">
+                                <FormLabel>
+                                Có thời hạn
+                                </FormLabel>
+                                <FormDescription>
+                                Khi bật mã giảm giá sẽ có thời hạn sử dụng
+                                    </FormDescription>
+                            {
+                                hasExpired && (
+                                    <FormField
+                                        control={form.control}
+                                        name="expiredDate"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Ngày hết hạn</FormLabel>
+                                                <FormControl>
+                                                <Popover>
+                                                    <PopoverTrigger asChild>
+                                                    <FormControl>
+                                                        <Button
+                                                        variant={"outline"}
+                                                        className={cn(
+                                                            "w-full pl-3 text-left font-normal",
+                                                            !field.value && "text-muted-foreground"
+                                                        )}
+                                                        >
+                                                        {field.value ? (
+                                                            format(field.value, "dd/MM/yyyy")
+                                                        ) : (
+                                                            <span>Chọn ngày</span>
+                                                        )}
+                                                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                                        </Button>
+                                                    </FormControl>
+                                                    </PopoverTrigger>
+                                                    <PopoverContent className="w-auto p-0" align="start">
+                                                    <Calendar
+                                                        mode="single"
+                                                        captionLayout="dropdown-buttons"
+                                                        fromYear={1970}
+                                                        toYear={2030}
+                                                        selected={field.value}
+                                                        onSelect={field.onChange}
+                                                        disabled={loading || ((date) => date < new Date())}
+                                                        initialFocus
+                                                    />
+                                                    </PopoverContent>
+                                                </Popover>
+                                                </FormControl>
+                                                <FormMessage/>
+                                            </FormItem>
+                                        )}
+                                    />
+                                )    
+                            }
+                            </div>
+                            </FormItem>
+                        )}
                         />
+                    </div>
+                    <div className="grid grid-cols-1 gap-8">
                         <FormField
                             control={form.control}
                             name="type"
@@ -296,6 +344,7 @@ const CouponForm: React.FC<CouponFormProps> = ({ initialData }) => {
                                             onValueChange={(value) => {
                                                 field.onChange(value);
                                                 value == "0" ? setMax(100) : setMax(100000000);
+                                                value == "0" ? setIsPercent(true) : setIsPercent(false);
                                             }}
                                             value={field.value}
                                             defaultValue={field.value}
@@ -323,10 +372,10 @@ const CouponForm: React.FC<CouponFormProps> = ({ initialData }) => {
                             )}
                         />
                     </div>
-                    <div className="grid grid-cols-2 gap-8">
+                    <div className="grid grid-cols-1 gap-8">
                         <FormField
                             control={form.control}
-                            name="count"
+                            name="quantity"
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Số lượng mã giảm giá</FormLabel>
@@ -343,6 +392,8 @@ const CouponForm: React.FC<CouponFormProps> = ({ initialData }) => {
                                 </FormItem>
                             )}
                         />
+                    </div>
+                    <div className="grid grid-cols-1 gap-8">
                         <FormField
                             control={form.control}
                             name="value"
@@ -364,6 +415,32 @@ const CouponForm: React.FC<CouponFormProps> = ({ initialData }) => {
                             )}
                         />
                     </div>
+                    {
+                        isPercent && (
+                            <div className="grid grid-cols-1 gap-8">
+                                <FormField
+                                    control={form.control}
+                                    name="value_max"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Giảm tối đa</FormLabel>
+                                            <FormControl>
+                                                <Input
+                                                    type="number"
+                                                    min="1"
+                                                    max="100000000"
+                                                    disabled={loading}
+                                                    placeholder="Giảm tối đa"
+                                                    {...field}
+                                                />
+                                            </FormControl>
+                                            <FormMessage>{errorValue && errorValue}</FormMessage>
+                                        </FormItem>
+                                    )}
+                                />
+                            </div>
+                        )
+                    }
                     <div className="grid grid-cols-1 gap-8">
                         <FormField
                             control={form.control}
@@ -382,7 +459,7 @@ const CouponForm: React.FC<CouponFormProps> = ({ initialData }) => {
                             )}
                         />
                     </div>
-                    <div className="grid grid-cols-1 gap-8">
+                    <div className="grid grid-cols-2 gap-8">
                     <FormField
                         control={form.control}
                         name="active"
@@ -401,6 +478,29 @@ const CouponForm: React.FC<CouponFormProps> = ({ initialData }) => {
                                 </FormLabel>
                                 <FormDescription>
                                 Mã giảm giá sẽ hiển thị ở sản phẩm
+                                </FormDescription>
+                            </div>
+                            </FormItem>
+                        )}
+                        />
+                        <FormField
+                        control={form.control}
+                        name="new_customer"
+                        render={({ field }) => (
+                            <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                            <FormControl>
+                                <Checkbox
+                                    disabled={loading}
+                                    checked={field.value}
+                                    onCheckedChange={field.onChange}
+                                />
+                            </FormControl>
+                            <div className="space-y-1 leading-none">
+                                <FormLabel>
+                                Dành cho người dùng mới
+                                </FormLabel>
+                                <FormDescription>
+                                Mã giảm giá áp dụng cho người dùng lần đầu tiên đặt hàng.
                                 </FormDescription>
                             </div>
                             </FormItem>

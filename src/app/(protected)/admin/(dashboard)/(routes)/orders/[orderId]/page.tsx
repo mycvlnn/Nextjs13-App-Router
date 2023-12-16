@@ -14,6 +14,7 @@ const OrderPage = ({
   params: { orderId: string }
 }) => {
   const [order, setOrder] = useState<Order | null>(null);
+  const [hasRole, setHasRole] = useState(true);
 
   if (params.orderId !== 'new') {
     useEffect(() => {
@@ -26,10 +27,15 @@ const OrderPage = ({
               Authorization: `Bearer ${session?.accessToken}`
             }
           });
+
+          if (response.status === 403) {
+            setHasRole(false);
+        }
   
           if (response.status === 200) {
             const data = response.data;
             setOrder(data.data);
+            setHasRole(true);
           } else {
             setOrder(null);
           }
@@ -39,6 +45,10 @@ const OrderPage = ({
   
       fetchRole();
     }, [params]);
+  }
+
+  if (!hasRole) {
+    return <div className="container">Bạn không có quyền truy cập chức năng này!</div>
   }
 
   return ( 

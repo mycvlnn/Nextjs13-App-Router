@@ -11,10 +11,16 @@ import {
   }
   
 export const RecentSales: React.FC<RecentProps> = ({ product }) => {
+    const productsArray = Object.values(product);
+    const sortedProducts = productsArray
+          .filter((prd:any) => typeof prd.totalQuantity === 'number')
+          .sort((a:any, b:any) => b.totalQuantity - a.totalQuantity)
+          .slice(0, 5);
+
     return (
       <div className="space-y-8">
           {
-          product && product.map((product: any) => (
+          sortedProducts ? (sortedProducts.map((product: any) => (
             <div className="flex items-center" key={product.product.id}>
               <Avatar className="h-9 w-9">
                 <AvatarImage src={`${product.product.image.path}`} alt="Avatar" />
@@ -25,7 +31,7 @@ export const RecentSales: React.FC<RecentProps> = ({ product }) => {
               </div>
               <div className="ml-auto font-medium">{ product.totalQuantity }</div>
             </div>
-          ))
+          ))) : <span>Không tìm thấy sản phẩm nào.</span>
           }
         </div>
     )

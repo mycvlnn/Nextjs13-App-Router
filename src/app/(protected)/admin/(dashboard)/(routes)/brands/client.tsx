@@ -3,6 +3,7 @@
 import { BrandsTableShell } from "@/components/common/brands-table-shell";
 import { Heading } from "@/components/ui/heading";
 import { Separator } from "@/components/ui/separator";
+import fetchClient from "@/lib/fetch-client";
 import axios from "axios";
 import { getSession } from "next-auth/react";
 import { useEffect, useState } from "react";
@@ -22,6 +23,7 @@ const URL = process.env.NEXT_PUBLIC_URL_API;
 export const BrandClient: React.FC<BrandClientProps> = ({ params }) => {
     const [brands, setBrands] = useState([]);
     const [total, setTotal] = useState(0);
+    const [hasRole, setHasRole] = useState(false);
 
     useEffect(() => {
         const fetchBrands = async () => {
@@ -34,10 +36,15 @@ export const BrandClient: React.FC<BrandClientProps> = ({ params }) => {
                     }
                 });
 
+                if (response.status === 403) {
+                    setHasRole(false);
+                }
+
                 if (response.status === 200) {
                     const data = response.data;
                     setBrands(data.data);
                     setTotal(data.meta.total);
+                    setHasRole(true);
                 } else {
                     setBrands([]);
                     setTotal(0);
@@ -50,6 +57,10 @@ export const BrandClient: React.FC<BrandClientProps> = ({ params }) => {
     }, [params]);
 
     const pageCount = Math.ceil(total / params.per_page);
+
+    if (!hasRole) {
+        return <>Bạn không có quyền truy cập chức năng này!</>
+    }
 
     return (
         <>

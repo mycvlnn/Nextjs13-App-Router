@@ -33,6 +33,7 @@ const NavbarCarts = () => {
     const handleLogout = async () => {
         try {
             deleteCookie('user');
+            cart.removeAll();
             toast.success('Đăng xuất thành công!');
             router.push('/');
             window.location.reload();

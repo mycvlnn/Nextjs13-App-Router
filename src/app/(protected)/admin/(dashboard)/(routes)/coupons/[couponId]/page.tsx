@@ -12,6 +12,7 @@ const URL = process.env.NEXT_PUBLIC_URL_API;
 const CouponPage = () => {
   const params = useParams();
   const [coupon, setCoupon] = useState<Coupon | null>(null);
+  const [hasRole, setHasRole] = useState(true);
 
   if (params.couponId !== 'new') {
     useEffect(() => {
@@ -24,10 +25,15 @@ const CouponPage = () => {
               Authorization: `Bearer ${session?.accessToken}`
             }
           });
+
+          if (response.status === 403) {
+            setHasRole(false);
+          }
   
           if (response.status === 200) {
             const data = response.data;
             setCoupon(data.data);
+            setHasRole(true);
           } else {
             setCoupon(null);
           }
@@ -37,6 +43,10 @@ const CouponPage = () => {
   
       fetchRole();
     }, [params]);
+  }
+
+  if (!hasRole) {
+    return <div className="container">Bạn không có quyền truy cập chức năng này!</div>
   }
 
   return ( 
