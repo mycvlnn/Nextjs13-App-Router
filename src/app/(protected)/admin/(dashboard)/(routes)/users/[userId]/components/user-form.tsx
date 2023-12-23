@@ -204,6 +204,15 @@ const UserForm: React.FC<UserFormProps> = ({ initialData }) => {
     useEffect(() => {
         if (initialData) {
             form.setValue("name", initialData?.name);
+            form.setValue("phone", initialData?.phone);
+            form.setValue("email", initialData?.email);
+            form.setValue("gender", initialData?.gender);
+            form.setValue("address", initialData?.address);
+            form.setValue("provinceId", initialData?.provinceId);
+            form.setValue("districtId", initialData?.districtId);
+            form.setValue("wardId", initialData?.wardId);
+            form.setValue("roleId", initialData?.roleId);
+            form.setValue("active", initialData?.active);
         }
     }, [initialData]);
 

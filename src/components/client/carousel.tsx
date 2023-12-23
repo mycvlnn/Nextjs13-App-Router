@@ -28,10 +28,10 @@ export default function Carousel({ images }: { images: string[] }) {
 
    return (
       <>
-         <div className="overflow-hidden rounded-lg" ref={emblaRef}>
+         <div className="overflow-hidden relative w-full h-full" ref={emblaRef}>
             <div className="flex">
                {images.map((src, i) => (
-                  <div className="relative h-96 flex-[0_0_100%]" key={i}>
+                  <div className="relative md:h-[600px] flex-[0_0_100%]" key={i}>
                      <Image src={src} fill className="object-cover" alt="" />
                   </div>
                ))}
@@ -55,9 +55,9 @@ const Dots = ({ itemsLength, selectedIndex }: Props) => {
             return (
                <div
                   className={cn({
-                     'h-3 w-3 rounded-full transition-all duration-300 bg-primary-foreground':
+                     'h-2 w-2 rounded-full transition-all duration-300 bg-gray-500':
                         true,
-                     'h-3 w-3 opacity-50': !selected,
+                     'h-2 w-2 opacity-40': !selected,
                   })}
                   key={index}
                />

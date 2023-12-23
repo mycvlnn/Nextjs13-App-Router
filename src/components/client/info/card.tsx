@@ -22,6 +22,7 @@ const ProductCard: React.FC<ProductCard> = ({
   const onAddToCart = () => {
     const convertData = {
       id: data?.id || "",
+      slug: data?.slug || "",
       image: data?.image.path || "",
       name: data?.name || "",
       price: data?.price,

@@ -6,11 +6,10 @@ import { ProductGrid, ProductSkeletonGrid } from "@/components/client/product-gr
 import { Button } from "@/components/ui/button";
 import { Heading } from "@/components/ui/heading-home";
 import { Separator } from "@/components/ui/separator";
-import { Banner, Blog, Product } from "@/types";
+import { Banner, Product } from "@/types";
 import axios from "axios";
 import { ChevronRight } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
 import useSWRImmutable from "swr/immutable";
 
 interface HomePageProps {
@@ -59,19 +58,18 @@ const HomePage: React.FC<HomePageProps> = () => {
 
     return (
         <>
+            {
+                banners && (
+                    <Carousel images={banners.map((obj:any) => obj.image.path)}/>
+                )
+            }
             <div className="container">
                 <div className="my-8">
-                    {
-                        banners && (
-                            <Carousel images={banners.map((obj:any) => obj.image.path)}/>
-                        )
-                    }
-                    <Separator className="mt-4 mb-8"/>
                     <Heading
                         title="Sản phẩm nổi bật"
                         description="Dưới đây là danh sách các sản phẩm nổi bật chúng tôi đề xuất cho bạn."
                     />
-                    <div className="my-4">
+                    <div className="mb-16 mt-8">
                     { productTrendings ? (
                         <ProductGrid products={productTrendings}/>
                     ) : (
@@ -82,7 +80,7 @@ const HomePage: React.FC<HomePageProps> = () => {
                         title="Sản phẩm mới nhất"
                         description="Dưới đây là danh sách các sản phẩm chúng tôi có sẵn cho bạn."
                     />
-                    <div className="my-4">
+                   <div className="mb-16 mt-8">
                     {products ? (
                         <ProductGrid products={products} />
                     ) : (

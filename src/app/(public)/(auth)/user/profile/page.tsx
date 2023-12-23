@@ -1,5 +1,6 @@
 "use client"
 
+import { AlertModal } from "@/components/modals/alert-modal";
 import { clientSignIn } from "@/components/server/login";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,15 +8,19 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Icons } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import useCart from "@/hooks/use-cart";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { getCookie } from "cookies-next";
-import { Fingerprint, Heart, LayoutList, Trash2, UserCog2 } from "lucide-react";
+import axios from "axios";
+import { deleteCookie, getCookie } from "cookies-next";
+import { Fingerprint, Ticket, LayoutList, Trash2, UserCog2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import * as z from "zod";
+
+const URL = process.env.NEXT_PUBLIC_URL_API;
 
 const formLogin = z.object({
   name: z.string()
@@ -33,20 +38,15 @@ const formLogin = z.object({
     .email("Phải là email")
     .max(60, "Bạn chỉ có thể nhập tối đa 60 ký tự.")
     .regex(/^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$/, "Không đúng định dạng email"),
-  password: z.string()
-    .min(1, "Mật khẩu là bắt buộc")
-    .min(8, "Mật khẩu tối thiểu là 8 ký tự")
-    .max(20, "Bạn chỉ có thể nhập tối đa 20 ký tự"),
-  password_confirm: z.string()
-    .min(1, "Mật khẩu là bắt buộc")
-    .min(8, "Mật khẩu tối thiểu là 8 ký tự")
-    .max(20, "Bạn chỉ có thể nhập tối đa 20 ký tự"),
 });
 
 export default function Page() {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+  const cart = useCart();
+  const [open, setOpen] = useState(false);    
   const [errorEmail, setErrorEmail] = useState('');
+  const [errorPhone, setErrorPhone] = useState('');
   
   useEffect(() => {
     const checkLogin = async () => {
@@ -65,8 +65,6 @@ export default function Page() {
         address: "",
         phone: "",
         email: "",
-        password: "",
-        password_confirm: "",
     },
   });
     
@@ -77,30 +75,66 @@ export default function Page() {
         form.setValue("name", userParse.name);
         form.setValue("email", userParse.email);
         form.setValue("phone", userParse.phone);
+        form.setValue("address", userParse.address);
     }
   }, []);
 
    const onSubmit = async (data: z.infer<typeof formLogin>) => {
     try {
       setIsLoading(true);
-      const res = await clientSignIn(data) || "";
-      if(res==""){
-        toast.success("Đăng nhập thành công");
-        window.location.href = '/';
+      const user = getCookie('user');
+      const user2 = user ? JSON.parse(user) : null;
+      const customer = user2?.id;
+      const datas = {
+        ...data,
+        customer
       }
-
-      if (res && res?.response.data.statusCode == 400 && res?.response.data.message) {
-        setErrorEmail(res?.response.data.message);
-        return;
-      }
+      const response = await axios.put(`${URL}/api/customers/update/${user2?.id}/FE`, datas); 
+    if (response.status === 200) {
+        router.push('/user/profile');
+        toast.success("Cập nhật thành công");
+    }
     } catch (error: any) {
+        if (error.response.data.statusCode == 400) {
+          if (error.response.data.data.email) {
+            setErrorEmail(error.response.data.data.email[0])
+          }
+          if (error.response.data.data.phone) {
+            setErrorPhone(error.response.data.data.phone[0])
+          }
+        }
     } finally {
       setIsLoading(false);
     }
   }
 
+  const onDelete = async () => {
+    try {
+      setIsLoading(true);
+      const user = getCookie('user');
+      const user2 = user ? JSON.parse(user) : null;
+        const response = await axios.delete(`${URL}/api/customers/update/${user2?.id}/delete`)
+        if (response.status === 200) {
+            toast.success("Xóa thành công");
+            deleteCookie('user');
+          cart.removeAll();
+          window.location.reload();
+        }
+    } catch (error) {
+        toast.error("Đã xảy ra lỗi");
+    } finally {
+      setIsLoading(false);
+        setOpen(false);
+    }
+};
+
   return (
-      <>
+    <>
+      <AlertModal
+        isOpen={open}
+        onClose={() => setOpen(false)}
+        onConfirm={ onDelete }
+        loading={isLoading} />
         <div className="flex flex-col items-center justify-center py-12">   
             <Card>
                 <Form {...form}>
@@ -126,18 +160,18 @@ export default function Page() {
                               </TooltipContent>
                           </Tooltip>
                         </TooltipProvider>
-                        <TooltipProvider>
+                        {/* <TooltipProvider>
                               <Tooltip>
                                   <TooltipTrigger asChild>
-                                  <Button variant="outline" size="icon" type="button" className="ml-2" onClick={()=>(router.push('/user/wishlist'))}>
-                                    <Heart className="w-4 h-4"/>
+                                  <Button variant="outline" size="icon" type="button" className="ml-2" onClick={()=>(router.push('/user/voucher'))}>
+                                    <Ticket className="w-4 h-4"/>
                                   </Button>
                                   </TooltipTrigger>
                                   <TooltipContent>
-                                  <p>Wishlist</p>
+                                  <p>Voucher</p>
                                   </TooltipContent>
                               </Tooltip>
-                      </TooltipProvider>
+                      </TooltipProvider> */}
                       <TooltipProvider>
                           <Tooltip>
                               <TooltipTrigger asChild>
@@ -165,7 +199,7 @@ export default function Page() {
                     <TooltipProvider>
                                 <Tooltip>
                                     <TooltipTrigger asChild>
-                                    <Button variant="destructive" size="icon"className="ml-2">
+                                    <Button variant="destructive" type="button" size="icon"className="ml-2"  onClick={() => setOpen(true)}>
                                       <Trash2 className="w-4 h-4"/>
                                     </Button>
                                     </TooltipTrigger>
@@ -213,7 +247,7 @@ export default function Page() {
                                 {...field}
                                 />
                             </FormControl>
-                            <FormMessage/>
+                            <FormMessage>{errorPhone??errorPhone}</FormMessage>
                             </FormItem>
                         )}
                         />
@@ -253,7 +287,7 @@ export default function Page() {
                                 {...field}
                                 />
                             </FormControl>
-                            <FormMessage>{errorEmail??errorEmail}</FormMessage>
+                            <FormMessage/>
                             </FormItem>
                         )}
                         />

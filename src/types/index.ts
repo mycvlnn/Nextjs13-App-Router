@@ -18,7 +18,8 @@ export type User = {
     password: string;
     accessToken: string;
     refreshToken: string;
-    active: boolean
+    active: boolean;
+    roleId: string;
 }
 
 export type Customer = {
@@ -247,6 +248,7 @@ export type PropertyOptionSku = {
 
 export type Cart = {
     id: string;
+    slug: string;
     price: number;
     quantity: number;
     image: string;

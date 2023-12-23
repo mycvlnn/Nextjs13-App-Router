@@ -7,6 +7,7 @@ import { Cart } from '@/types';
 interface CartStore {
   items: Cart[];
   addItem: (data: Cart) => void;
+  updateItem: (id: string, sku_id:number, quantity: number) => void;
   removeItem: (id: string, sku_id:number) => void;
   removeAll: () => void;
 }
@@ -32,6 +33,22 @@ const useCart = create(
     } else {
       set({ items: [...get().items, data] });
       toast.success('Thêm vào giỏ hàng thành công');
+    }
+  },
+  updateItem: (id: string, sku_id: number, quantity: number) => {
+    const currentItems = get().items;
+    let existingProductIndex = -1;
+
+    if (sku_id>=0) {
+      existingProductIndex = currentItems.findIndex((item) => item.id === id && item.sku_id === sku_id);
+    } else {
+      existingProductIndex = currentItems.findIndex((item) => item.id === id);
+    }
+    if (existingProductIndex>=0) {
+      const updatedItems = [...currentItems];
+      updatedItems[existingProductIndex].quantity = quantity;
+      set({ items: updatedItems });
+      toast.success('Cập nhật giỏ hàng thành công');
     }
   },
   removeItem: (id: string, sku_id: number) => {

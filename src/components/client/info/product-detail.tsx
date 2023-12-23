@@ -118,6 +118,7 @@ const Info: React.FC<InfoProps> = ({ data, options, newData, coupons }) => {
   const onAddToCart = () => {
     const convertData = {
       id: data?.id || "",
+      slug: data?.slug || "",
       image: data?.image.path || "",
       name: data?.name || "",
       price: (newData && Array.isArray(newData) && newData.length > 0 && newData[0].price !== undefined) ? newData[0].price : price || "",

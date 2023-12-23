@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { getCookie } from "cookies-next";
-import { Fingerprint, Heart, LayoutList, Trash2, UserCog2 } from "lucide-react";
+import { Fingerprint, Ticket, LayoutList, Trash2, UserCog2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -108,9 +108,9 @@ export default function Page() {
               <CardHeader className="space-y-1 w-[800px] h-auto">
                     <div className="grid grid-cols-12">
                       <div className="col-span-6">
-                        <CardTitle className="text-2xl">Wishlist</CardTitle>
+                        <CardTitle className="text-2xl">Ví voucher</CardTitle>
                         <CardDescription>
-                            Danh sách sản phẩm yêu thích
+                            Quản lý voucher
                         </CardDescription>
                       </div>
                   <div className="col-span-6 flex justify-end align-middle">
@@ -126,18 +126,18 @@ export default function Page() {
                               </TooltipContent>
                           </Tooltip>
                         </TooltipProvider>
-                        <TooltipProvider>
+                        {/* <TooltipProvider>
                               <Tooltip>
                                   <TooltipTrigger asChild>
-                                  <Button variant="default" size="icon" type="button" className="ml-2" onClick={()=>(router.push('/user/wishlist'))}>
-                                    <Heart className="w-4 h-4"/>
+                                  <Button variant="default" size="icon" type="button" className="ml-2" onClick={()=>(router.push('/user/voucher'))}>
+                                    <Ticket className="w-4 h-4"/>
                                   </Button>
                                   </TooltipTrigger>
                                   <TooltipContent>
-                                  <p>Wishlist</p>
+                                  <p>Vourcher</p>
                                   </TooltipContent>
                               </Tooltip>
-                      </TooltipProvider>
+                      </TooltipProvider> */}
                       <TooltipProvider>
                           <Tooltip>
                               <TooltipTrigger asChild>

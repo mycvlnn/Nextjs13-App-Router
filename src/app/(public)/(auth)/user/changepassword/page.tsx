@@ -7,32 +7,20 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Icons } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import useCart from "@/hooks/use-cart";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { getCookie } from "cookies-next";
-import { Fingerprint, Heart, LayoutList, Trash2, UserCog2 } from "lucide-react";
-import Link from "next/link";
+import axios from "axios";
+import { deleteCookie, getCookie } from "cookies-next";
+import { Fingerprint, LayoutList, Ticket, Trash2, UserCog2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import * as z from "zod";
 
+const URL = process.env.NEXT_PUBLIC_URL_API;
+
 const formLogin = z.object({
-  name: z.string()
-    .min(1, "Tên là bắt buộc")
-    .min(6, "Tối thiểu 6 ký tự")
-        .max(50, "Bạn chỉ có thể nhập tối đa 50 ký tự."),
-  address: z.any(),
-  phone: z.string()
-    .min(1, "Điện thoại là bắt buộc")
-    .min(10, "Tối thiểu 10 ký tự")
-    .max(15, "Bạn chỉ có thể nhập tối đa 15 ký tự.")
-    .regex(/^[0-9]{10,15}$/, "Không đúng định dạng số điện thoại"),
-  email: z.string()
-    .min(1, "Email là bắt buộc")
-    .email("Phải là email")
-    .max(60, "Bạn chỉ có thể nhập tối đa 60 ký tự.")
-    .regex(/^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$/, "Không đúng định dạng email"),
   password: z.string()
     .min(1, "Mật khẩu là bắt buộc")
     .min(8, "Mật khẩu tối thiểu là 8 ký tự")
@@ -40,13 +28,14 @@ const formLogin = z.object({
   password_confirm: z.string()
     .min(1, "Mật khẩu là bắt buộc")
     .min(8, "Mật khẩu tối thiểu là 8 ký tự")
-    .max(20, "Bạn chỉ có thể nhập tối đa 20 ký tự"),
+    .max(20, "Bạn chỉ có thể nhập tối đa 20 ký tự")
 });
 
 export default function Page() {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
-  const [errorEmail, setErrorEmail] = useState('');
+  const [errorPassword, setErrorPassword] = useState('');
+  const cart = useCart();
   
   useEffect(() => {
     const checkLogin = async () => {
@@ -61,39 +50,29 @@ export default function Page() {
   const form = useForm({
     resolver: zodResolver(formLogin),
     defaultValues: {
-        name: "",
-        address: "",
-        phone: "",
-        email: "",
         password: "",
         password_confirm: "",
     },
   });
     
-   useEffect(() => {
-    const user = getCookie('user');
-    if (user) {
-        const userParse = JSON.parse(user);
-        form.setValue("name", userParse.name);
-        form.setValue("email", userParse.email);
-        form.setValue("phone", userParse.phone);
-    }
-  }, []);
-
    const onSubmit = async (data: z.infer<typeof formLogin>) => {
     try {
       setIsLoading(true);
-      const res = await clientSignIn(data) || "";
-      if(res==""){
-        toast.success("Đăng nhập thành công");
-        window.location.href = '/';
-      }
-
-      if (res && res?.response.data.statusCode == 400 && res?.response.data.message) {
-        setErrorEmail(res?.response.data.message);
-        return;
-      }
+      const user = getCookie('user');
+      const user2 = user ? JSON.parse(user) : null;
+      const response = await axios.patch(`${URL}/api/customers/update/${user2?.id}/password`, data); 
+      if (response.status === 200) {
+        deleteCookie('user');
+        cart.removeAll();
+        toast.success("Cập nhật thành công");
+        window.location.reload();
+    }
     } catch (error: any) {
+        if (error.response.data.statusCode == 400) {
+          if (error.response.data.data.password_confirm) {
+            setErrorPassword(error.response.data.data.password_confirm[0])
+          }
+        }
     } finally {
       setIsLoading(false);
     }
@@ -126,18 +105,18 @@ export default function Page() {
                               </TooltipContent>
                           </Tooltip>
                         </TooltipProvider>
-                        <TooltipProvider>
+                        {/* <TooltipProvider>
                               <Tooltip>
                                   <TooltipTrigger asChild>
-                                  <Button variant="outline" size="icon" type="button" className="ml-2" onClick={()=>(router.push('/user/wishlist'))}>
-                                    <Heart className="w-4 h-4"/>
+                                  <Button variant="outline" size="icon" type="button" className="ml-2" onClick={()=>(router.push('/user/voucher'))}>
+                                    <Ticket className="w-4 h-4"/>
                                   </Button>
                                   </TooltipTrigger>
                                   <TooltipContent>
-                                  <p>Wishlist</p>
+                                  <p>Voucher</p>
                                   </TooltipContent>
                               </Tooltip>
-                      </TooltipProvider>
+                      </TooltipProvider> */}
                       <TooltipProvider>
                           <Tooltip>
                               <TooltipTrigger asChild>
@@ -162,7 +141,7 @@ export default function Page() {
                                     </TooltipContent>
                                 </Tooltip>
                     </TooltipProvider>
-                    <TooltipProvider>
+                    {/* <TooltipProvider>
                                 <Tooltip>
                                     <TooltipTrigger asChild>
                                     <Button variant="destructive" size="icon"className="ml-2">
@@ -173,7 +152,7 @@ export default function Page() {
                                     <p>Yêu cầu xóa tài khoản</p>
                                     </TooltipContent>
                                 </Tooltip>
-                            </TooltipProvider>
+                            </TooltipProvider> */}
                       </div>
                     </div>
                     </CardHeader>
@@ -213,7 +192,7 @@ export default function Page() {
                                 {...field}
                                 />
                             </FormControl>
-                            <FormMessage />
+                            <FormMessage>{errorPassword ?? errorPassword }</FormMessage>
                             </FormItem>
                         )}
                         />

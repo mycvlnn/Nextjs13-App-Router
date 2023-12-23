@@ -14,7 +14,7 @@ const BrandPage = () => {
   const [user, setUser] = useState<User | null>(null);
   const [hasRole, setHasRole] = useState(false);
 
-  if (params.brandId !== 'new') {
+  if (params.userId !== 'new') {
     useEffect(() => {
       const fetchRole = async () => {
         const session = await getSession();

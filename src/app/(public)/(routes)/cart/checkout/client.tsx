@@ -17,7 +17,7 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import * as z from "zod";
-import Summary from "../components/summary";
+import SummaryCheckout from "../components/summary-checkout";
 
 const URL = process.env.NEXT_PUBLIC_URL_API;
 
@@ -400,7 +400,7 @@ COD (Thanh toán khi nhận hàng)
                     </form>
                     </Form>
                     </div>
-                    <Summary discount={discount} message={ errorProduct } />
+                    <SummaryCheckout discount={discount} message={ errorProduct } />
                 </div>
             </div>
         </>
